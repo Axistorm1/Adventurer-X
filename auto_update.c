@@ -1,8 +1,9 @@
-#define INSTALLED_VERSION 1.16
+#define INSTALLED_VERSION 1.17
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <windows.h>
 #include "fetch_file.c"
 
 float get_installed_version() {
@@ -73,7 +74,23 @@ int download_updated_files(){
   const char* url_1 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/auto_update.c";
   const char* file_1 = "auto_update_1.c";
 
-  downloadFile(url_1, file_1);
+  const char* url_2 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/adventurer.c";
+
+  const char* url_3 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/fetch_file.c";
+
+  const char* url_4 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/movement.c";
+
+  const char* url_5 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/world_generator.c";
+  
+  const char* url_6 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/LICENCE";
+  
+  const char* url_7 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/README.md";
+  
+  const char* url_8 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/Adventurer-X.exe";
+  const char* file_8 = "Adventurer-X.exe";
+  
+  
+  downloadFile(url_8, file_8);
   printf("Downloaded successfully");
 
 }
@@ -97,6 +114,7 @@ void check_up_to_date(){
     if (answer == 'y') {
       download_updated_files();
       printf("Updated files");
+      ExitProcess(0);
     } else {
       printf("Didn't update");
     }

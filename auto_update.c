@@ -1,4 +1,4 @@
-#define INSTALLED_VERSION 1.15
+#define INSTALLED_VERSION 1.16
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,6 +58,8 @@ int is_up_to_date(float current, float uptodate) {
     printf("Game version is most recent version \n");
     return 1;
   }
+
+  return 0;
 }
 
 float get_uptodate_version() {
@@ -68,16 +70,11 @@ float get_uptodate_version() {
 
 int download_updated_files(){
 
-  char* repo = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/";
-  char* file_1 = "auto_update.c";
-
-  size_t url_length = strlen(repo) + strlen(file_1) + 1;
-  char* url_1 = malloc(url_length);
-
-  strcpy(url_1, repo);
-  strcat(url_1, file_1);
+  const char* url_1 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/auto_update.c";
+  const char* file_1 = "auto_update_1.c";
 
   downloadFile(url_1, file_1);
+  printf("Downloaded successfully");
 
 }
 
@@ -93,11 +90,15 @@ void check_up_to_date(){
     printf("Would you like to update the game?");
     scanf(" %c", &answer);
 
-    while(getchar() != '\n')
+    while(getchar() != '\n');
 
+    printf("%c \n", answer);
+      
     if (answer == 'y') {
       download_updated_files();
+      printf("Updated files");
+    } else {
+      printf("Didn't update");
     }
-    
   }
 }

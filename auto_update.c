@@ -1,7 +1,8 @@
-#define INSTALLED_VERSION 1.14
+#define INSTALLED_VERSION 1.15
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "fetch_file.c"
 
 float get_installed_version() {
@@ -32,8 +33,6 @@ float read_file() {
                 version[len - 1] = '\0';
             }
 
-            printf("Extracted string: %s\n", version);
-
             // Convert the version string to float
             UPTODATE_VERSION = strtof(version, NULL);
         } else {
@@ -49,15 +48,16 @@ float read_file() {
 
 
 int is_up_to_date(float current, float uptodate) {
+
+  printf("current = %.2f \t updated =  %.2f \n", current, uptodate);
+  
   if (current < uptodate) {
     printf("Game version isn't most recent version \n");
+    return 0;
   } else if (current >= uptodate) {
     printf("Game version is most recent version \n");
+    return 1;
   }
-  
-  printf("%.2f & %.2f \n", current, uptodate);
-    
-  return 1;
 }
 
 float get_uptodate_version() {
@@ -66,8 +66,38 @@ float get_uptodate_version() {
     return UPTODATE_VERSION;
 }
 
+int download_updated_files(){
+
+  char* repo = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/";
+  char* file_1 = "auto_update.c";
+
+  size_t url_length = strlen(repo) + strlen(file_1) + 1;
+  char* url_1 = malloc(url_length);
+
+  strcpy(url_1, repo);
+  strcat(url_1, file_1);
+
+  downloadFile(url_1, file_1);
+
+}
+
 void check_up_to_date(){
   float UPTODATE_VERSION;
+  char answer;
+  
   UPTODATE_VERSION = get_uptodate_version();
-  is_up_to_date(INSTALLED_VERSION, UPTODATE_VERSION);
+  system("del up_to_date.txt");
+
+  if (is_up_to_date(INSTALLED_VERSION, UPTODATE_VERSION) == 0) {
+    
+    printf("Would you like to update the game?");
+    scanf(" %c", &answer);
+
+    while(getchar() != '\n')
+
+    if (answer == 'y') {
+      download_updated_files();
+    }
+    
+  }
 }

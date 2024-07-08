@@ -1,7 +1,6 @@
 #include <windows.h>
 #include <wininet.h>
 #include <stdio.h>
-#pragma comment(lib, "wininet.lib")
 
 void downloadFile(const char* url, const char* filename) {
     HINTERNET hInternet, hConnect;

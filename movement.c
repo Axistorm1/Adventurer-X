@@ -56,7 +56,7 @@ int main(void) {
   srand(time(NULL));
 
   printf("\n");
-  printf("Welcome to %s! I hope you will enjoy! \n"
+  printf("Welcome to %s! Ready to start a new adventure? \n"
 	 "Press any key to start... ", GAME_NAME);
   _getch();
 
@@ -390,7 +390,7 @@ char ask_action() {
 	     "'i' -> show inventory \n"
 	     "'s' -> show statistics \n"
 	     "'h' -> help menu \n"
-	     "'q' -> to quit \n"
+	     "'q' -> quit \n"
 	     "'o' -> options \n");
       scanf(" %c", &choice);
 
@@ -473,7 +473,7 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
 	   "'i' -> show inventory \n"
 	   "'s' -> show statistics \n"
 	   "'h' -> help menu \n"
-	   "'q' -> to quit \n"
+	   "'q' -> quit \n"
 	   "'o' -> options \n"
 	   );
     break;

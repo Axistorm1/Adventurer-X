@@ -1,4 +1,4 @@
-#define INSTALLED_VERSION 1.23
+#define INSTALLED_VERSION 1.24
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,10 +55,10 @@ int is_up_to_date(float current, float uptodate) {
   printf("Current version = %.2f \t Updated version =  %.2f \n", current, uptodate);
   
   if (current < uptodate) {
-    printf("Game version isn't most recent version \n");
+    printf("Game version is doesn't match most recent version \n");
     return 0;
   } else if (current >= uptodate) {
-    printf("Game version is most recent version \n");
+    printf("The game is up to date \n");
     return 1;
   }
 
@@ -79,7 +79,8 @@ int download_updated_files(){
   
   downloadFile(url, file);
   printf("Downloaded successfully \n");
-
+  
+  return 1;
 }
 
 void check_up_to_date(){
@@ -101,6 +102,8 @@ void check_up_to_date(){
     if (answer == 'y') {
       download_updated_files();
       printf("Updated files \n");
+      printf("Closing in 5 seconds \n");
+      Sleep(5000);
       ExitProcess(0);
     } else {
       printf("Didn't update \n");

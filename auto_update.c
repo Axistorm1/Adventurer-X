@@ -1,4 +1,4 @@
-#define INSTALLED_VERSION 1.22
+#define INSTALLED_VERSION 1.23
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,26 +73,11 @@ float get_uptodate_version() {
 
 int download_updated_files(){
 
-  const char* url_1 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/auto_update.c";
-  const char* file_1 = "auto_update_1.c";
-
-  const char* url_2 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/adventurer.c";
-
-  const char* url_3 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/fetch_file.c";
-
-  const char* url_4 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/movement.c";
-
-  const char* url_5 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/world_generator.c";
-  
-  const char* url_6 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/LICENCE";
-  
-  const char* url_7 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/README.md";
-  
-  const char* url_8 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/Adventurer-X.exe";
-  const char* file_8 = "Adventurer-Y.exe";
+  const char* url = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/Adventurer-X.exe";
+  const char* file = "Adventurer-Y.exe";
   
   
-  downloadFile(url_8, file_8);
+  downloadFile(url, file);
   printf("Downloaded successfully \n");
 
 }

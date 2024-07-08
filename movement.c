@@ -54,7 +54,8 @@ int main(void) {
   
   /* Seeding pseudo-random number generator */
   srand(time(NULL));
-  
+
+  printf("\n");
   printf("Welcome to %s! I hope you will enjoy! \n"
 	 "Press any key to start... ", GAME_NAME);
   _getch();
@@ -483,6 +484,7 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
   case 'o':
     system("cls");
     options_menu();
+    update_terminal(world, *adv, *pos_x, *pos_y);
     break;
 
   default:

@@ -51,8 +51,6 @@ void downloadFile(const char* url, const char* filename) {
     // Cleanup
     InternetCloseHandle(hConnect);
     InternetCloseHandle(hInternet);
-
-    printf("File downloaded and saved as %s\n", filename);
 }
 
 

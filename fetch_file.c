@@ -7,6 +7,8 @@ void downloadFile(const char* url, const char* filename) {
     HINTERNET hInternet, hConnect;
     DWORD bytesRead;
     char buffer[1024];
+    HANDLE hFile;
+    DWORD bytesWritten;
 
     // Initialize WinINet
     hInternet = InternetOpen("HTTPGET", INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
@@ -16,29 +18,35 @@ void downloadFile(const char* url, const char* filename) {
     }
 
     // Open URL
-    hConnect = InternetOpenUrl(hInternet, url, NULL, 0, INTERNET_FLAG_RELOAD, 0);
+    hConnect = InternetOpenUrl(hInternet, url, NULL, 0, INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE, 0);
     if (hConnect == NULL) {
         printf("InternetOpenUrl error: %lu\n", GetLastError());
         InternetCloseHandle(hInternet);
         return;
     }
 
-    // Open file for writing
-    FILE *file = fopen(filename, "wb");
-    if (file == NULL) {
-        printf("Failed to open file for writing\n");
+    // Create or open the file using Windows API
+    hFile = CreateFile(filename, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) {
+        printf("Failed to open file for writing: %lu\n", GetLastError());
         InternetCloseHandle(hConnect);
         InternetCloseHandle(hInternet);
         return;
     }
 
-    // Read data and write to file
+    // Read data from URL and write directly to file
     while (InternetReadFile(hConnect, buffer, sizeof(buffer), &bytesRead) && bytesRead != 0) {
-        fwrite(buffer, 1, bytesRead, file);
+        if (!WriteFile(hFile, buffer, bytesRead, &bytesWritten, NULL)) {
+            printf("Failed to write to file: %lu\n", GetLastError());
+            CloseHandle(hFile);
+            InternetCloseHandle(hConnect);
+            InternetCloseHandle(hInternet);
+            return;
+        }
     }
 
     // Close file
-    fclose(file);
+    CloseHandle(hFile);
 
     // Cleanup
     InternetCloseHandle(hConnect);
@@ -46,6 +54,7 @@ void downloadFile(const char* url, const char* filename) {
 
     printf("File downloaded and saved as %s\n", filename);
 }
+
 
 int setup_download() {
     const char* url = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/auto_update.c";

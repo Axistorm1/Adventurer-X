@@ -1,4 +1,4 @@
-#define INSTALLED_VERSION 1.17
+#define INSTALLED_VERSION 1.18
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,7 +87,7 @@ int download_updated_files(){
   const char* url_7 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/README.md";
   
   const char* url_8 = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/Adventurer-X.exe";
-  const char* file_8 = "Adventurer-X.exe";
+  const char* file_8 = "Adventurer-Y.exe";
   
   
   downloadFile(url_8, file_8);

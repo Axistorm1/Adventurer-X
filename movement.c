@@ -6,6 +6,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <conio.h>
+#include "auto_update.c"
 
 #define GAME_NAME "Adventurer X"
 
@@ -48,6 +49,9 @@ char texture_default = 'D';
 
 int main(void) {
 
+  /* Check if game is updated */
+  check_up_to_date();
+  
   /* Seeding pseudo-random number generator */
   srand(time(NULL));
   

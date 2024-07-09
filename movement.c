@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <conio.h>
 #include "auto_update.c"
+#include "action_log.c"
 
 #define GAME_NAME "Adventurer X"
 
@@ -38,6 +39,7 @@ int food_per_eat = 1;
 int display_coordinates = 1;
 int display_stats = 1;
 int display_inventory = 1;
+int log_lines_amount = 5;
 
 /* Textures */
 char texture_0 = '~';
@@ -170,7 +172,6 @@ void update_terminal(int**** world, struct adventurer adv, int pos_x, int pos_y)
   if (display_coordinates == 1) printf("X = %d \nY = %d \n", pos_x, pos_y);
   printf("\n");
 
-  
 }
 
 void print_chunk_at_position(int**** world, int pos_x, int pos_y) {
@@ -332,11 +333,13 @@ int options_menu() {
 	 "6 Numerical hunger = %d \n"
 	 "7 Display coordinates = %d \n"
 	 "8 Display statistics = %d \n"
-	 "9 Display inventory = %d \n",
+	 "9 Display inventory = %d \n"
+	 "10 Displayed log lines = %d \n",
 	 confirm_action, radius_x,
 	 radius_y, food_per_eat,
 	 hunger_numerical, display_coordinates,
-	 display_stats, display_inventory);
+	 display_stats, display_inventory,
+	 log_lines_amount);
   
   printf("To modify an option, write its id \n");
 
@@ -351,7 +354,8 @@ int options_menu() {
   if (option_id == 1 || option_id == 2 ||
       option_id == 3 || option_id == 5 ||
       option_id == 6 || option_id == 7 ||
-      option_id == 8 || option_id == 9){
+      option_id == 8 || option_id == 9 ||
+      option_id == 10){
   
     printf("New value = ");
     scanf(" %d", &new_value);
@@ -366,6 +370,7 @@ int options_menu() {
     if (option_id == 7) display_coordinates = new_value;
     if (option_id == 8) display_stats = new_value;
     if (option_id == 9) display_inventory = new_value;
+    if (option_id == 10) log_lines_amount = new_value;
 
     return 1;
   } else if (option_id == 4) {
@@ -408,7 +413,7 @@ int options_menu() {
 
 int is_action_valid(char action) {
 
-  char valid_actions[] = {'r', 'u', 'd', 'l', 'm', 'h', 'q', 'o', 'e', 'i', 's', 'p'};
+  char valid_actions[] = {'r', 'u', 'd', 'l', 'm', 'h', 'q', 'o', 'e', 'i', 's', 'p', 'x'};
   int num_choices = sizeof(valid_actions) / sizeof(valid_actions[0]);
 
   for (int num = 0; num < num_choices; num++) {
@@ -442,7 +447,8 @@ char ask_action() {
 	     "'s' -> show statistics \n"
 	     "'h' -> help menu \n"
 	     "'q' -> quit \n"
-	     "'o' -> options \n");
+	     "'o' -> options \n"
+	     "'x' -> show action log \n");
       scanf(" %c", &choice);
 
       while (getchar() != '\n');
@@ -472,6 +478,14 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
   char choice = ask_action();
   int mined, placed;
   
+  char stored_lines[log_lines_amount][ACTION_MAX_LENGTH];
+  int num_lines_stored;
+  int smaller = num_lines_stored < log_lines_amount ? num_lines_stored : log_lines_amount;
+
+  char choice_log[] = {choice, '\n', '\0'};
+  
+  write_char(choice_log);
+
   switch(choice) {
 
   case 'r':
@@ -512,6 +526,7 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
     if (placed == 3) printf("You can't place this block here \n");
     if (placed == 4) printf("You're too hungry to do this \n");
     break;
+
   case 'e':
     eat_food(adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
@@ -553,6 +568,12 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
     update_terminal(world, *adv, *pos_x, *pos_y);
     break;
 
+  case 'x':
+    store_last_n_lines(log_lines_amount, stored_lines, &num_lines_stored);
+    printf("Last %d actions: \n", log_lines_amount);
+    print_n_lines(smaller, stored_lines);
+    break;
+    
   default:
     break;
   }

@@ -1,4 +1,5 @@
-#define INSTALLED_VERSION 1.29
+#define INSTALLED_VERSION 1.30
+#define UPDATE_CONTENT "Added actions log"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,9 +54,10 @@ int is_up_to_date(float current, float uptodate) {
   printf("\n");
   
   printf("Current version = %.2f \t Updated version = %.2f \n", current, uptodate);
+  printf("What's new ? %s \n", UPDATE_CONTENT);
   
   if (current < uptodate) {
-    printf("Game version is doesn't match most recent version \n");
+    printf("Game version doesn't match most recent version \n");
     return 0;
   } else if (current >= uptodate) {
     printf("The game is up to date \n");

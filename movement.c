@@ -571,7 +571,7 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
 	     "'logs' -> show action log \n");
 
   } else if (strcmp(choice, "q" ) == 0 || strcmp(choice, "quit") == 0) {
-    printf("Closing game \n");
+    printf("Closing game\n");
     ExitProcess(0);
 
   } else if (strcmp(choice, "o") == 0 || strcmp(choice, "options") == 0) {

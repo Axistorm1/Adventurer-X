@@ -1,4 +1,4 @@
-#define INSTALLED_VERSION 1.33
+#define INSTALLED_VERSION 1.34
 #define UPDATE_CONTENT "\t1.29 -> Place blocks \n\t1.30 -> Actions log \n\t1.31 -> Actions as strings \n\t1.32 -> Auto updater downloads numbered version \n\t1.33 -> Eating failures explained"
 
 #include <stdio.h>
@@ -53,8 +53,8 @@ int is_up_to_date(float current, float uptodate) {
 
   printf("\n");
   
-  printf("Current version = %.2f \t Updated version = %.2f \n", current, uptodate);
-  printf("What's new ? \n%s \n", UPDATE_CONTENT);
+  printf("Current version = %.2f \t Updated version = %.2f \n \n", current, uptodate);
+  printf("What's new ? \n%s \n \n", UPDATE_CONTENT);
   
   if (current < uptodate) {
     printf("Game version doesn't match most recent version \n");

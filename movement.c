@@ -309,14 +309,16 @@ int place(int**** world, int pos_x, int pos_y, struct adventurer* adv){
 }
 
 int eat_food(struct adventurer* adv) {
-
-  if (adv->hunger > 0.0 && adv->inv_adv.food >= (1 * food_per_eat)) {
+  /* Return 0 when no food, 1 when ate successfully, 2 when hunger empty */
+  if (adv->hunger > 0.0){
+    if (adv->inv_adv.food >= (1 * food_per_eat)) {
     adv->inv_adv.food -= (1 * food_per_eat);
     adv->hunger -= (10 * food_per_eat);
     if (adv->hunger < 0.0) adv->hunger = 0;
-  }
-  
-  return 0;
+    return 1;
+    } return 0;
+  } 
+  return 2;
 }
 
 int options_menu() {
@@ -476,7 +478,7 @@ char* ask_action() {
 void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
 
   char* choice = ask_action();
-  int mined, placed;
+  int mined, placed, ate;
   
   char stored_lines[log_lines_amount][ACTION_MAX_LENGTH];
   int num_lines_stored;
@@ -522,8 +524,11 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
     if (placed == 4) printf("You're too hungry to do this \n");
 
   } else if (strcmp(choice, "e") == 0 || strcmp(choice, "eat") == 0) {
-    eat_food(adv);
+    ate = eat_food(adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
+    if (ate == 0) printf("You don't have any food left \n");
+    if (ate == 1); // Success
+    if (ate == 2) printf("You are not hungry \n");
 
   } else if (strcmp(choice, "i") == 0 || strcmp(choice, "inventory") == 0 || strcmp(choice, "inv") == 0) {
     system("cls");

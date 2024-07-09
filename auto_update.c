@@ -1,5 +1,5 @@
-#define INSTALLED_VERSION 1.32
-#define UPDATE_CONTENT "\t1.29 -> Place blocks \n\t1.30 -> Actions log \n\t1.31 -> Actions as strings \n\t1.32 -> Auto updater downloads numbered version \n"
+#define INSTALLED_VERSION 1.33
+#define UPDATE_CONTENT "\t1.29 -> Place blocks \n\t1.30 -> Actions log \n\t1.31 -> Actions as strings \n\t1.32 -> Auto updater downloads numbered version \n\t1.33 -> Eating failures explained"
 
 #include <stdio.h>
 #include <stdlib.h>

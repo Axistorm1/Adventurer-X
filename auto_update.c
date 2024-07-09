@@ -1,4 +1,4 @@
-#define INSTALLED_VERSION 1.24
+#define INSTALLED_VERSION 1.25
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,7 +52,7 @@ int is_up_to_date(float current, float uptodate) {
 
   printf("\n");
   
-  printf("Current version = %.2f \t Updated version =  %.2f \n", current, uptodate);
+  printf("Current version = %.2f \t Updated version = %.2f \n", current, uptodate);
   
   if (current < uptodate) {
     printf("Game version is doesn't match most recent version \n");

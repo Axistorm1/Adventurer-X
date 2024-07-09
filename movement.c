@@ -18,6 +18,7 @@ int get_value_at_position(int**** world, int pos_x, int pos_y);
 void change_value_at_position(int**** world, int pos_x, int pos_y, int value);
 int move_direction(int**** world, int* pos_x, int* pos_y, int x, int y, struct adventurer* adv);
 int mine(int**** world, int pos_x, int pos_y, struct adventurer* adv);
+int place(int**** world, int pos_x, int pos_y, struct adventurer* adv);
 int eat_food(struct adventurer* adv);
 int options_menu();
 int is_action_valid(char action);
@@ -233,7 +234,8 @@ int move_direction(int**** world, int* pos_x, int* pos_y, int x, int y, struct a
 }
 
 int mine(int**** world, int pos_x, int pos_y, struct adventurer* adv) {
-
+  /* Return 0 when no block to mine, 1 when mined and 2 when can't mine, 4 when hunger too high */
+  
   int tile_value = get_value_at_position(world, pos_x, pos_y);
 
   if (adv->hunger < 100) {
@@ -245,28 +247,67 @@ int mine(int**** world, int pos_x, int pos_y, struct adventurer* adv) {
       adv->hunger += 1.00;
 
       return 1;
-    }
-
-    if (tile_value == 2) {
+    } else if (tile_value == 2) {
 
       change_value_at_position(world, pos_x, pos_y, 0);
       adv->inv_adv.food += 1;
       adv->hunger += 1.00;
       
       return 1;
-    }
-
-    if (tile_value == 3) {
+    } else if (tile_value == 3) {
 
       change_value_at_position(world, pos_x, pos_y, 0);
       adv->inv_adv.wood += 1;
       adv->hunger += 1.00;
 
       return 1;
+    } else if (tile_value == 0) {
+      return 0;
+    } else {
+    
+    return 2;
     }
   }
 
-  return 0;
+  return 4;
+}
+
+int place(int**** world, int pos_x, int pos_y, struct adventurer* adv){
+  /* Return 0 when no block, 1 when placed, 2 when can't place this block, 3 can't place here, 4 hunger too high */
+  if (adv->hunger < 100) {
+    
+    if (get_value_at_position(world, pos_x, pos_y) == 0) {
+
+      int block_to_place = 0;
+    
+      printf("Which block do you want to place? \n");
+      scanf(" %d", &block_to_place);
+
+      while (getchar() != '\n');
+    
+      if (block_to_place == 1) {
+	
+	if (adv->inv_adv.rock > 0) {
+
+	  change_value_at_position(world, pos_x, pos_y, 1);
+	  return 1;
+	}
+	return 0;
+	
+      } else if (block_to_place == 3) {
+	
+	if (adv->inv_adv.wood > 0) {
+	  
+	  change_value_at_position(world, pos_x, pos_y, 3);
+	  return 1;
+	} return 0;
+      } else {
+	return 2;
+      }
+    }
+    return 3;
+  }
+  return 4; 
 }
 
 int eat_food(struct adventurer* adv) {
@@ -334,7 +375,7 @@ int options_menu() {
            "1 Rock -> %c \n"
            "2 Chest -> %c \n"
            "3 Tree -> %c \n"
-	         "6 User -> %c \n",
+	   "6 Adventurer -> %c \n",
            texture_0, texture_1, texture_2, texture_3, texture_6);
 
     printf("To modify a texture, write its id \n");
@@ -367,7 +408,7 @@ int options_menu() {
 
 int is_action_valid(char action) {
 
-  char valid_actions[] = {'r', 'u', 'd', 'l', 'm', 'h', 'q', 'o', 'e', 'i', 's'};
+  char valid_actions[] = {'r', 'u', 'd', 'l', 'm', 'h', 'q', 'o', 'e', 'i', 's', 'p'};
   int num_choices = sizeof(valid_actions) / sizeof(valid_actions[0]);
 
   for (int num = 0; num < num_choices; num++) {
@@ -388,13 +429,14 @@ char ask_action() {
 
     while (getchar() != '\n');
 
-    while(is_action_valid(choice) != 1) {
+    while (is_action_valid(choice) != 1) {
       printf("Wrong action. List of actions: \n"
 	     "'r' -> move right \n"
 	     "'l' -> move left \n"
 	     "'u' -> move up \n"
 	     "'d' -> move down \n"
 	     "'m' -> mine block \n"
+	     "'p' -> place block \n"
 	     "'e' -> eat food \n"
 	     "'i' -> show inventory \n"
 	     "'s' -> show statistics \n"
@@ -406,9 +448,9 @@ char ask_action() {
       while (getchar() != '\n');
     }
 
-    if(confirm_action == 1) {
+    if (confirm_action == 1) {
       char answer = '\0';
-      while(answer != 'Y' && answer != 'y' && answer != 'n' && answer != 'N') {
+      while (answer != 'Y' && answer != 'y' && answer != 'n' && answer != 'N') {
         printf("Are you sure you want to do the following action? %c \n", choice);
         scanf(" %c", &answer);
 
@@ -428,6 +470,7 @@ char ask_action() {
 void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
 
   char choice = ask_action();
+  int mined, placed;
   
   switch(choice) {
 
@@ -452,10 +495,23 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
     break;
 
   case 'm':
-    mine(world, *pos_x, *pos_y, adv);
+    mined = mine(world, *pos_x, *pos_y, adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
+    if (mined == 0) printf("There is no block to mine \n");
+    if (mined == 1); // Success
+    if (mined == 2) printf("You can't mine this block \n");
+    if (mined == 4) printf("You're too hungry to do this \n");
     break;
 
+  case 'p':
+    placed = place(world, *pos_x, *pos_y, adv);
+    update_terminal(world, *adv, *pos_x, *pos_y);
+    if (placed == 0) printf("You don't have the block you want to place \n");
+    if (placed == 1); // Success
+    if (placed == 2) printf("This can't be placed \n");
+    if (placed == 3) printf("You can't place this block here \n");
+    if (placed == 4) printf("You're too hungry to do this \n");
+    break;
   case 'e':
     eat_food(adv);
     update_terminal(world, *adv, *pos_x, *pos_y);

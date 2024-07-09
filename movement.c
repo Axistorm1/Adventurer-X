@@ -38,6 +38,23 @@ int display_stats = 1;
 int display_inventory = 1;
 int log_lines_amount = 5;
 
+/* Custom keybinds slots */
+
+char mine_keybind[32] = {"No keybind set"};
+char place_keybind[32] = {"No keybind set"};
+char right_keybind[32] = {"No keybind set"};
+char left_keybind[32] = {"No keybind set"};
+char up_keybind[32] = {"No keybind set"};
+char down_keybind[32] = {"No keybind set"};
+
+char eat_keybind[32] = {"No keybind set"};
+char inventory_keybind[32] = {"No keybind set"};
+char statistics_keybind[32] = {"No keybind set"};
+char help_keybind[32] = {"No keybind set"};
+char quit_keybind[32] = {"No keybind set"};
+char options_keybind[32] = {"No keybind set"};
+char logs_keybind[32] = {"No keybind set"};
+
 /* Textures */
 char texture_0 = '~';
 char texture_1 = '#';
@@ -333,7 +350,8 @@ int options_menu() {
 	 "7 Display coordinates = %d \n"
 	 "8 Display statistics = %d \n"
 	 "9 Display inventory = %d \n"
-	 "10 Displayed log lines = %d \n",
+	 "10 Displayed log lines = %d \n"
+	 "11 Modify keybinds \n",
 	 confirm_action, radius_x,
 	 radius_y, food_per_eat,
 	 hunger_numerical, display_coordinates,
@@ -349,7 +367,7 @@ int options_menu() {
 
   while(getchar() != '\n');
 
-  /* Rewrite this as a function that checks for a value in a list */
+  /* Rewrite this as >= 1 <= 10 without 4 */
   if (option_id == 1 || option_id == 2 ||
       option_id == 3 || option_id == 5 ||
       option_id == 6 || option_id == 7 ||
@@ -375,7 +393,8 @@ int options_menu() {
   } else if (option_id == 4) {
 
     printf("\n");
-    printf("0 Empty -> %c \n"
+    printf("Textures: \n"
+           "0 Empty -> %c \n"
            "1 Rock -> %c \n"
            "2 Chest -> %c \n"
            "3 Tree -> %c \n"
@@ -404,9 +423,64 @@ int options_menu() {
       if (texture_id == 6) texture_6 = new_char;
     }
     
+  } else if (option_id == 11) {
+    printf("\n");
+    printf("Keybinds: \n"
+     "0 Mine -> %s \n"
+	   "1 Place -> %s \n"
+	   "2 Right -> %s \n"
+	   "3 Left -> %s \n"
+	   "4 Down -> %s \n"
+	   "5 Up -> %s \n"
+     "6 Eat -> %s \n"
+     "7 Inventory -> %s \n"
+     "8 Statistics -> %s \n"
+     "9 Help -> %s \n"
+     "10 Quit -> %s \n"
+     "11 Options -> %s \n"
+     "12 Logs -> %s \n",
+	   mine_keybind, place_keybind,
+	   right_keybind, left_keybind,
+	   down_keybind, up_keybind,
+     eat_keybind, inventory_keybind, 
+     statistics_keybind, help_keybind,
+     quit_keybind, options_keybind,
+     logs_keybind);
+
+    printf("To modify a keybind, write its id \n");
+
+    int keybind_id;
+    static char new_keybind[32];
+
+    scanf(" %d", &keybind_id);
+
+    while (getchar() != '\n');
+
+    if (keybind_id >= 0 && keybind_id <= 12) {
+
+      printf("New keybind = ");
+      scanf(" %s", new_keybind);
+
+      while(getchar() != '\n');
+
+      if (keybind_id == 0) strcpy(mine_keybind, new_keybind);
+      if (keybind_id == 1) strcpy(place_keybind, new_keybind);
+      if (keybind_id == 2) strcpy(right_keybind, new_keybind);
+      if (keybind_id == 3) strcpy(left_keybind, new_keybind);
+      if (keybind_id == 4) strcpy(down_keybind, new_keybind);
+      if (keybind_id == 5) strcpy(up_keybind, new_keybind);
+      if (keybind_id == 6) strcpy(eat_keybind, new_keybind);
+      if (keybind_id == 7) strcpy(inventory_keybind, new_keybind);
+      if (keybind_id == 8) strcpy(statistics_keybind, new_keybind);
+      if (keybind_id == 9) strcpy(help_keybind, new_keybind);
+      if (keybind_id == 10) strcpy(quit_keybind, new_keybind);
+      if (keybind_id == 11) strcpy(options_keybind, new_keybind);
+      if (keybind_id == 12) strcpy(logs_keybind, new_keybind);
+      
+    }
+    
   }
-  
-	 
+
   return 0;
 }
 
@@ -422,9 +496,13 @@ void lower_string(char* string){
 
 int is_action_valid(char* action) {
   
-  const char *valid_actions[] = {"right", "r", "left", "l", "up", "u", "down", "d", "mine", "m",
-				 "place", "p", "eat", "e", "inventory", "i", "statistics", "s",
-				 "help", "h", "quit", "q", "options", "o", "logs"};
+  const char *valid_actions[] = {"right", "r", right_keybind, "left", "l", left_keybind,
+         "up", "u", up_keybind, "down", "d", down_keybind, "mine", "m", mine_keybind,
+				 "place", "p", place_keybind, "eat", "e", eat_keybind, "inventory", "i",
+         inventory_keybind, "statistics", "s", statistics_keybind, "help", "h",
+         help_keybind, "quit", "q", quit_keybind, "options", "o", options_keybind, 
+         "logs", logs_keybind};
+
   int num_choices = sizeof(valid_actions) / sizeof(valid_actions[0]);
 
   for (int num = 0; num < num_choices; num++) {
@@ -490,23 +568,23 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
   
   write_char(choice_log);
 
-  if (strcmp(choice, "r") == 0 || strcmp(choice, "right") == 0) {
+  if (strcmp(choice, "r") == 0 || strcmp(choice, "right") == 0 || strcmp(choice, right_keybind) == 0) {
     move_direction(world, pos_x, pos_y, 0, 1, adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
 
-  } else if (strcmp(choice, "d") == 0 || strcmp(choice, "down") == 0) {
+  } else if (strcmp(choice, "d") == 0 || strcmp(choice, "down") == 0 || strcmp(choice, down_keybind) == 0) {
     move_direction(world, pos_x, pos_y, 1, 0, adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
 
-  } else if (strcmp(choice, "l") == 0 || strcmp(choice, "left") == 0) {
+  } else if (strcmp(choice, "l") == 0 || strcmp(choice, "left") == 0 || strcmp(choice, left_keybind) == 0) {
     move_direction(world, pos_x, pos_y, 0, -1, adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
 
-  } else if (strcmp(choice, "u") == 0 || strcmp(choice, "up") == 0) {
+  } else if (strcmp(choice, "u") == 0 || strcmp(choice, "up") == 0 || strcmp(choice, up_keybind) == 0) {
     move_direction(world, pos_x, pos_y, -1, 0, adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
 
-  } else if (strcmp(choice, "m") == 0 || strcmp(choice, "mine") == 0) {
+  } else if (strcmp(choice, "m") == 0 || strcmp(choice, "mine") == 0 || strcmp(choice, mine_keybind) == 0) {
     mined = mine(world, *pos_x, *pos_y, adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
     if (mined == 0) printf("There is no block to mine \n");
@@ -514,7 +592,7 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
     if (mined == 2) printf("You can't mine this block \n");
     if (mined == 4) printf("You're too hungry to do this \n");
 
-  } else if (strcmp(choice, "p") == 0 || strcmp(choice, "place") == 0) {
+  } else if (strcmp(choice, "p") == 0 || strcmp(choice, "place") == 0 || strcmp(choice, place_keybind) == 0) {
     placed = place(world, *pos_x, *pos_y, adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
     if (placed == 0) printf("You don't have the block you want to place \n");
@@ -523,18 +601,18 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
     if (placed == 3) printf("You can't place this block here \n");
     if (placed == 4) printf("You're too hungry to do this \n");
 
-  } else if (strcmp(choice, "e") == 0 || strcmp(choice, "eat") == 0) {
+  } else if (strcmp(choice, "e") == 0 || strcmp(choice, "eat") == 0 || strcmp(choice, eat_keybind) == 0) {
     ate = eat_food(adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
     if (ate == 0) printf("You don't have any food left \n");
     if (ate == 1); // Success
     if (ate == 2) printf("You are not hungry \n");
 
-  } else if (strcmp(choice, "i") == 0 || strcmp(choice, "inventory") == 0 || strcmp(choice, "inv") == 0) {
+  } else if (strcmp(choice, "i") == 0 || strcmp(choice, "inventory") == 0 || strcmp(choice, "inv") == 0 || strcmp(choice, inventory_keybind) == 0) {
     system("cls");
     print_inventory(&adv->inv_adv);
 
-  } else if (strcmp(choice, "s") == 0 || strcmp(choice, "statistics") == 0 || strcmp(choice, "stats") == 0) {
+  } else if (strcmp(choice, "s") == 0 || strcmp(choice, "statistics") == 0 || strcmp(choice, "stats") == 0 || strcmp(choice, statistics_keybind) == 0) {
     system("cls");
     print_stats_adv(adv);
 
@@ -553,7 +631,7 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
 	   "'o' -> options \n"
 	   );
 
-  } else if (strcmp(choice, "help") == 0) {
+  } else if (strcmp(choice, "help") == 0 || strcmp(choice, help_keybind) == 0) {
     update_terminal(world, *adv, *pos_x, *pos_y);
     printf("List of actions: \n"
 	     "'right' -> move right \n"
@@ -570,16 +648,16 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
 	     "'options' -> options \n"
 	     "'logs' -> show action log \n");
 
-  } else if (strcmp(choice, "q" ) == 0 || strcmp(choice, "quit") == 0) {
+  } else if (strcmp(choice, "q" ) == 0 || strcmp(choice, "quit") == 0 || strcmp(choice, quit_keybind) == 0) {
     printf("Closing game\n");
     ExitProcess(0);
 
-  } else if (strcmp(choice, "o") == 0 || strcmp(choice, "options") == 0) {
+  } else if (strcmp(choice, "o") == 0 || strcmp(choice, "options") == 0 || strcmp(choice, options_keybind) == 0) {
     system("cls");
     options_menu();
     update_terminal(world, *adv, *pos_x, *pos_y);
 
-  } else if (strcmp(choice, "logs") == 0) {
+  } else if (strcmp(choice, "logs") == 0 || strcmp(choice, logs_keybind) == 0) {
     store_last_n_lines(log_lines_amount, stored_lines, &num_lines_stored);
     printf("Last %d actions: \n", log_lines_amount);
     smaller = num_lines_stored < log_lines_amount ? num_lines_stored : log_lines_amount;

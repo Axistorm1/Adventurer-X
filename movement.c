@@ -25,7 +25,7 @@ char ask_action();
 void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv);
 
 
-/* World size, modifiable at start-up */ 
+/* World options, modifiable at start-up */ 
 int world_size_x = 16;
 int world_size_y = 16;
 
@@ -255,6 +255,15 @@ int mine(int**** world, int pos_x, int pos_y, struct adventurer* adv) {
       
       return 1;
     }
+
+    if (tile_value == 3) {
+
+      change_value_at_position(world, pos_x, pos_y, 0);
+      adv->inv_adv.wood += 1;
+      adv->hunger += 1.00;
+
+      return 1;
+    }
   }
 
   return 0;
@@ -479,6 +488,7 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
     break;
 
   case 'q':
+    printf("Closing game \n");
     ExitProcess(0);
 
   case 'o':

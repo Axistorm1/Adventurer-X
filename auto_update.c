@@ -1,5 +1,5 @@
-#define INSTALLED_VERSION 1.31
-#define UPDATE_CONTENT "\t1.29 -> Place blocks \n\t1.30 -> Actions log \n\t1.31 -> Actions as strings\n"
+#define INSTALLED_VERSION 1.32
+#define UPDATE_CONTENT "\t1.29 -> Place blocks \n\t1.30 -> Actions log \n\t1.31 -> Actions as strings \n\t1.32 -> Auto updater downloads numbered version \n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,13 +73,32 @@ float get_uptodate_version() {
     return UPTODATE_VERSION;
 }
 
-int download_updated_files(){
+int download_updated_files(float uptodate){
 
   const char* url = "https://raw.githubusercontent.com/AxistormDuBled/Adventurer-X/main/Adventurer-X.exe";
-  const char* file = "Adventurer-Y.exe";
+  const char* file = "Adventurer-X";
+  const char* extension = ".exe";
+
+  double double_version = uptodate;
+  char buffer[10];
+  sprintf(buffer, "%.2f", double_version);
+  const char* installed_version = buffer;
   
-  
-  downloadFile(url, file);
+  size_t base_len = strlen(file);
+  size_t version_len = strlen(installed_version);
+  size_t extension_len = strlen(extension);
+
+  char* filename = (char*)malloc(base_len + version_len + extension_len + 1); // +1 for null terminator
+    if (filename == NULL) {
+        printf("Memory allocation failed\n");
+        return 1;
+    }
+
+  strcpy(filename, file);
+  strcpy(filename + base_len, installed_version);
+  strcpy(filename + base_len + version_len, extension);
+
+  downloadFile(url, filename);
   printf("Downloaded successfully \n");
   
   return 1;
@@ -102,7 +121,7 @@ void check_up_to_date(){
     printf("%c \n", answer);
       
     if (answer == 'y' || answer == 'Y') {
-      download_updated_files();
+      download_updated_files(UPTODATE_VERSION);
       printf("Updated files \n");
       printf("Closing in 5 seconds \n");
       Sleep(5000);

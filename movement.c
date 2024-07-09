@@ -338,150 +338,228 @@ int eat_food(struct adventurer* adv) {
   return 2;
 }
 
+int graphics_option_menu() {
+  int sub_option_id;
+  
+  printf("Graphisms: \n"
+	 "1 Vertical view radius = %d \n"
+	 "2 Horizontal view radius = %d \n"
+	 ,radius_x, radius_y);
+
+  printf("Choose an option to modify \n");
+  scanf(" %d", &sub_option_id);
+
+  while (getchar() != '\n');
+
+  if (sub_option_id >= 1 && sub_option_id <=2) {
+    int new_value;
+
+    printf("New value = ");
+    scanf(" %d", &new_value);
+
+    if (sub_option_id == 1) radius_x = new_value;
+    if (sub_option_id == 2) radius_y = new_value;
+    
+  }
+  
+  return 1;
+}
+
+int textures_option_menu() {
+  int sub_option_id;
+  
+  printf("Textures: \n"
+	 "0 Empty -> %c \n"
+	 "1 Rock -> %c \n"
+	 "2 Chest -> %c \n"
+	 "3 Tree -> %c \n"
+	 "6 Adventurer -> %c \n",
+	 texture_0, texture_1, texture_2, texture_3, texture_6);
+
+  printf("Choose a texture to modify \n");
+  scanf(" %d", &sub_option_id);
+
+  while (getchar() != '\n');
+
+  if ((sub_option_id >= 0 && sub_option_id <= 6) && (sub_option_id != 4 && sub_option_id != 5)){
+    char new_char;
+
+    printf("New character = ");
+    scanf(" %c", &new_char);
+    
+    if (sub_option_id == 0) texture_0 = new_char;
+    if (sub_option_id == 1) texture_1 = new_char;
+    if (sub_option_id == 2) texture_2 = new_char;
+    if (sub_option_id == 3) texture_3 = new_char;
+    if (sub_option_id == 6) texture_6 = new_char;
+  }
+  
+  return 1;
+}
+
+int toggles_option_menu() {
+  int sub_option_id;
+
+  printf("Toggles: \n"
+	 "1 Confirm actions = %d \n"
+	 "2 Numerical hunger = %d \n"
+	 "3 Display coordinates = %d \n"
+	 "4 Display statistics = %d \n"
+	 "5 Display inventory = %d \n",
+	 confirm_action, hunger_numerical,
+	 display_coordinates, display_stats,
+	 display_inventory);
+
+  printf("Choose an option to modify \n");
+  scanf(" %d", &sub_option_id);
+
+  while (getchar() != '\n');
+
+  if (sub_option_id >= 1 && sub_option_id <= 5) {
+    int new_value;
+
+    printf("New value = ");
+    scanf(" %d", &new_value);
+
+    if (sub_option_id == 1) confirm_action = new_value;
+    if (sub_option_id == 2) hunger_numerical = new_value;
+    if (sub_option_id == 3) display_coordinates = new_value;
+    if (sub_option_id == 4) display_stats = new_value;
+    if (sub_option_id == 5) display_inventory = new_value;
+  }
+
+  return 1;
+}
+
+int custom_values_option_menu() {
+  int sub_option_id;
+
+  printf("Custom values: \n"
+	 "1 Food eaten per action = %d \n"
+	 "2 Log lines to display = %d \n",
+	 food_per_eat, log_lines_amount);
+
+  printf("Choose an option to modify \n");
+  scanf(" %d", &sub_option_id);
+
+  while (getchar() != '\n');
+
+  if (sub_option_id >= 1 && sub_option_id <= 2) {
+    int new_value;
+
+    printf("New value = ");
+    scanf(" %d", &new_value);
+
+    if (sub_option_id == 1) food_per_eat = new_value;
+    if (sub_option_id == 2) log_lines_amount = new_value;
+  }
+
+  return 1;
+}
+
+int keybinds_option_menu(){
+  int sub_option_id;
+
+  printf("Keybinds: \n"
+	 "1 Mine -> %s \n"
+	 "2 Place -> %s \n"
+	 "3 Right -> %s \n"
+	 "4 Left -> %s \n"
+	 "5 Down -> %s \n"
+	 "6 Up -> %s \n"
+	 "7 Eat -> %s \n"
+	 "8 Inventory -> %s \n"
+	 "9 Statistics -> %s \n"
+	 "10 Help -> %s \n"
+	 "11 Quit -> %s \n"
+	 "12 Options -> %s \n"
+	 "13 Logs -> %s \n",
+	 mine_keybind, place_keybind,
+	 right_keybind, left_keybind,
+	 down_keybind, up_keybind,
+	 eat_keybind, inventory_keybind, 
+	 statistics_keybind, help_keybind,
+	 quit_keybind, options_keybind,
+	 logs_keybind);
+
+  printf("Choose a keybind to modify \n");
+  scanf(" %d", &sub_option_id);
+
+  while (getchar() != '\n');
+
+  if (sub_option_id >= 1 && sub_option_id <= 13) {
+    static char new_keybind[32];
+
+    printf("New keybind = ");
+    scanf(" %s", new_keybind);
+
+    while (getchar() != '\n');
+    
+    if (sub_option_id == 1) strcpy(mine_keybind, new_keybind);
+    if (sub_option_id == 2) strcpy(place_keybind, new_keybind);
+    if (sub_option_id == 3) strcpy(right_keybind, new_keybind);
+    if (sub_option_id == 4) strcpy(left_keybind, new_keybind);
+    if (sub_option_id == 5) strcpy(down_keybind, new_keybind);
+    if (sub_option_id == 6) strcpy(up_keybind, new_keybind);
+    if (sub_option_id == 7) strcpy(eat_keybind, new_keybind);
+    if (sub_option_id == 8) strcpy(inventory_keybind, new_keybind);
+    if (sub_option_id == 9) strcpy(statistics_keybind, new_keybind);
+    if (sub_option_id == 10) strcpy(help_keybind, new_keybind);
+    if (sub_option_id == 11) strcpy(quit_keybind, new_keybind);
+    if (sub_option_id == 12) strcpy(options_keybind, new_keybind);
+    if (sub_option_id == 13) strcpy(logs_keybind, new_keybind);
+  }
+
+  return 1;
+}
+
 int options_menu() {
 
   printf("Options: \n"
-	 "1 Confirm actions = %d \n"
-	 "2 Vertical view radius = %d \n"
-	 "3 Horizontal view radius = %d \n"
-	 "4 Modify textures \n"
-	 "5 Food eaten per action = %d \n"
-	 "6 Numerical hunger = %d \n"
-	 "7 Display coordinates = %d \n"
-	 "8 Display statistics = %d \n"
-	 "9 Display inventory = %d \n"
-	 "10 Displayed log lines = %d \n"
+	 "1 Graphisms \n"
+	 "2 Textures \n"
+	 "3 Toggles \n"
+	 "4 Custom values \n"
+	 "5 Keybinds \n");
+  /*
+  printf("Options: \n"
 	 "11 Modify keybinds \n",
-	 confirm_action, radius_x,
-	 radius_y, food_per_eat,
-	 hunger_numerical, display_coordinates,
-	 display_stats, display_inventory,
-	 log_lines_amount);
+  */
   
-  printf("To modify an option, write its id \n");
+  printf("Choose a category \n");
 
   int option_id;
-  int new_value;
   
   scanf(" %d", &option_id);
 
   while(getchar() != '\n');
-
-  /* Rewrite this as >= 1 <= 10 without 4 */
-  if (option_id == 1 || option_id == 2 ||
-      option_id == 3 || option_id == 5 ||
-      option_id == 6 || option_id == 7 ||
-      option_id == 8 || option_id == 9 ||
-      option_id == 10){
   
-    printf("New value = ");
-    scanf(" %d", &new_value);
-
-    while(getchar() != '\n');
-    
-    if (option_id == 1) confirm_action = new_value;
-    if (option_id == 2) radius_x = new_value;
-    if (option_id == 3) radius_y = new_value;
-    if (option_id == 5) food_per_eat = new_value;
-    if (option_id == 6) hunger_numerical = new_value;
-    if (option_id == 7) display_coordinates = new_value;
-    if (option_id == 8) display_stats = new_value;
-    if (option_id == 9) display_inventory = new_value;
-    if (option_id == 10) log_lines_amount = new_value;
-
+  if (option_id == 1) {
+    graphics_option_menu();
     return 1;
-  } else if (option_id == 4) {
-
-    printf("\n");
-    printf("Textures: \n"
-           "0 Empty -> %c \n"
-           "1 Rock -> %c \n"
-           "2 Chest -> %c \n"
-           "3 Tree -> %c \n"
-	   "6 Adventurer -> %c \n",
-           texture_0, texture_1, texture_2, texture_3, texture_6);
-
-    printf("To modify a texture, write its id \n");
-
-    int texture_id;
-    char new_char;
-
-    scanf(" %d", &texture_id);
-
-    while(getchar() != '\n');
-
-    if (texture_id == 0 || texture_id == 1 || texture_id == 2 || texture_id == 3 || texture_id == 6) {
-      printf("New character = ");
-      scanf(" %c", &new_char);
-
-      while(getchar() != '\n');
-
-      if (texture_id == 0) texture_0 = new_char;
-      if (texture_id == 1) texture_1 = new_char;
-      if (texture_id == 2) texture_2 = new_char;
-      if (texture_id == 3) texture_3 = new_char;
-      if (texture_id == 6) texture_6 = new_char;
-    }
-    
-  } else if (option_id == 11) {
-    printf("\n");
-    printf("Keybinds: \n"
-     "0 Mine -> %s \n"
-	   "1 Place -> %s \n"
-	   "2 Right -> %s \n"
-	   "3 Left -> %s \n"
-	   "4 Down -> %s \n"
-	   "5 Up -> %s \n"
-     "6 Eat -> %s \n"
-     "7 Inventory -> %s \n"
-     "8 Statistics -> %s \n"
-     "9 Help -> %s \n"
-     "10 Quit -> %s \n"
-     "11 Options -> %s \n"
-     "12 Logs -> %s \n",
-	   mine_keybind, place_keybind,
-	   right_keybind, left_keybind,
-	   down_keybind, up_keybind,
-     eat_keybind, inventory_keybind, 
-     statistics_keybind, help_keybind,
-     quit_keybind, options_keybind,
-     logs_keybind);
-
-    printf("To modify a keybind, write its id \n");
-
-    int keybind_id;
-    static char new_keybind[32];
-
-    scanf(" %d", &keybind_id);
-
-    while (getchar() != '\n');
-
-    if (keybind_id >= 0 && keybind_id <= 12) {
-
-      printf("New keybind = ");
-      scanf(" %s", new_keybind);
-
-      while(getchar() != '\n');
-
-      if (keybind_id == 0) strcpy(mine_keybind, new_keybind);
-      if (keybind_id == 1) strcpy(place_keybind, new_keybind);
-      if (keybind_id == 2) strcpy(right_keybind, new_keybind);
-      if (keybind_id == 3) strcpy(left_keybind, new_keybind);
-      if (keybind_id == 4) strcpy(down_keybind, new_keybind);
-      if (keybind_id == 5) strcpy(up_keybind, new_keybind);
-      if (keybind_id == 6) strcpy(eat_keybind, new_keybind);
-      if (keybind_id == 7) strcpy(inventory_keybind, new_keybind);
-      if (keybind_id == 8) strcpy(statistics_keybind, new_keybind);
-      if (keybind_id == 9) strcpy(help_keybind, new_keybind);
-      if (keybind_id == 10) strcpy(quit_keybind, new_keybind);
-      if (keybind_id == 11) strcpy(options_keybind, new_keybind);
-      if (keybind_id == 12) strcpy(logs_keybind, new_keybind);
-      
-    }
-    
   }
 
-  return 0;
+  if (option_id == 2) {
+    textures_option_menu();
+    return 1;
+  }
+
+  if (option_id == 3) {
+    toggles_option_menu();
+    return 1;
+  }
+
+  if (option_id == 4) {
+    custom_values_option_menu();
+    return 1;
+  }
+  
+  if (option_id == 5) {
+    keybinds_option_menu();
+    return 1;
+  }
+
+  return 1;
 }
 
 void lower_string(char* string){

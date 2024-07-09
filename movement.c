@@ -27,6 +27,7 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv);
 /* World options, modifiable at start-up */ 
 int world_size_x = 16;
 int world_size_y = 16;
+static char world_name[32];
 
 /* Options */
 int confirm_action = 0;
@@ -78,18 +79,50 @@ int main(void) {
   _getch();
 
   printf("\n");
+
+  int load_or_create;
   
-  printf("Choose world height = ");
-  scanf(" %d", &world_size_x);
+  printf("1 Load save file \n"
+	 "2 Create new world \n");
+
+  scanf(" %d", &load_or_create);
 
   while(getchar() != '\n');
-  
-  printf("Choose world width = ");
-  scanf(" %d", &world_size_y);
 
-  while(getchar() != '\n');
+  /* Load or create the world, create the adventurer, execute world action_log */
+
+  int**** world;
   
-  int**** world = create_world(world_size_x, world_size_y);
+  if (load_or_create == 1) {
+    printf("Feature not available yet \n");
+    printf("Switching to Create new world \n");
+    load_or_create = 2;
+  }
+
+  if (load_or_create == 2) {
+
+    printf("Choose world name = ");
+    scanf(" %s", world_name);
+
+    while(getchar() != '\n');
+    
+    printf("Choose world height = ");
+    scanf(" %d", &world_size_x);
+
+    while(getchar() != '\n');
+  
+    printf("Choose world width = ");
+    scanf(" %d", &world_size_y);
+
+    while(getchar() != '\n');
+  
+    world = create_world(world_size_x, world_size_y);
+  
+  }
+  
+  if (load_or_create != 1 && load_or_create != 2) {
+    ExitProcess(0);
+  }
   
   struct adventurer adv1;
   game_setup(&adv1);
@@ -514,22 +547,16 @@ int keybinds_option_menu(){
 }
 
 int options_menu() {
-
+  int option_id;
+  
   printf("Options: \n"
 	 "1 Graphisms \n"
 	 "2 Textures \n"
 	 "3 Toggles \n"
 	 "4 Custom values \n"
 	 "5 Keybinds \n");
-  /*
-  printf("Options: \n"
-	 "11 Modify keybinds \n",
-  */
   
   printf("Choose a category \n");
-
-  int option_id;
-  
   scanf(" %d", &option_id);
 
   while(getchar() != '\n');

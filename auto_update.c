@@ -1,11 +1,12 @@
-#define INSTALLED_VERSION 1.36
+#define INSTALLED_VERSION 1.37
 char UPDATE_CONTENT[] = {"\t1.29 -> Place blocks \n\t"
 "1.30 -> Actions log \n\t"
 "1.31 -> Actions as strings \n\t"
 "1.32 -> Auto updater downloads numbered version \n\t"
 "1.33 -> Eating failures explained \n\t"
 "1.35 -> Custom keybinds \n\t"
-"1.36 -> Option menu overhaul \n\t"};
+"1.36 -> Option menu overhaul \n\t"
+"1.37 -> Start menu changes \n\t"};
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -2,11 +2,20 @@
 #include "world_generator.c"
 #include <ctype.h>
 #include <conio.h>
-#include "auto_update.c"
 #include "action_log.c"
 
 #define GAME_NAME "Adventurer X"
 #define GAME_AUTHOR "Axistorm"
+#define ONLINE_MODE 1
+
+#if ONLINE_MODE == 1 
+#include "auto_update.c"
+#endif
+
+#if ONLINE_MODE == 0
+#include <windows.h>
+void check_up_to_date();
+#endif
 
 char display_char(int value);
 void print_chunk_radius(int**** world, int pos_x, int pos_y, int radius_x, int radius_y);
@@ -22,7 +31,6 @@ int options_menu();
 int is_action_valid(char* action);
 char* ask_action();
 void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv);
-
 
 /* World options, modifiable at start-up */ 
 int world_size_x = 16;
@@ -68,7 +76,9 @@ char texture_default = 'D';
 int main(void) {
 
   /* Check if game is updated */
-  check_up_to_date();
+  if (ONLINE_MODE == 1) {
+    check_up_to_date();
+  }
   
   /* Seeding pseudo-random number generator */
   srand(time(NULL));

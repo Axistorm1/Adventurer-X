@@ -273,7 +273,7 @@ int eat_food(struct adventurer* adv) {
 
   if (adv->hunger > 0.0 && adv->inv_adv.food >= (1 * food_per_eat)) {
     adv->inv_adv.food -= (1 * food_per_eat);
-    adv->hunger -= (25 * food_per_eat);
+    adv->hunger -= (10 * food_per_eat);
     if (adv->hunger < 0.0) adv->hunger = 0;
   }
   

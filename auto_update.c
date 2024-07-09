@@ -1,4 +1,4 @@
-#define INSTALLED_VERSION 1.26
+#define INSTALLED_VERSION 1.27
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,15 +1,12 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include "adventurer.c"
 #include "world_generator.c"
-#include <windows.h>
-#include <string.h>
 #include <ctype.h>
 #include <conio.h>
 #include "auto_update.c"
 #include "action_log.c"
 
 #define GAME_NAME "Adventurer X"
+#define GAME_AUTHOR "Axistorm"
 
 char display_char(int value);
 void print_chunk_radius(int**** world, int pos_x, int pos_y, int radius_x, int radius_y);
@@ -22,8 +19,8 @@ int mine(int**** world, int pos_x, int pos_y, struct adventurer* adv);
 int place(int**** world, int pos_x, int pos_y, struct adventurer* adv);
 int eat_food(struct adventurer* adv);
 int options_menu();
-int is_action_valid(char action);
-char ask_action();
+int is_action_valid(char* action);
+char* ask_action();
 void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv);
 
 
@@ -411,113 +408,111 @@ int options_menu() {
   return 0;
 }
 
-int is_action_valid(char action) {
+void lower_string(char* string){
+  
+  int character = 0;
+  while(string[character] != '\0') {
+    string[character] = tolower(string[character]);
+    character++;
+  }
+  
+}
 
-  char valid_actions[] = {'r', 'u', 'd', 'l', 'm', 'h', 'q', 'o', 'e', 'i', 's', 'p', 'x'};
+int is_action_valid(char* action) {
+  
+  const char *valid_actions[] = {"right", "r", "left", "l", "up", "u", "down", "d", "mine", "m",
+				 "place", "p", "eat", "e", "inventory", "i", "statistics", "s",
+				 "help", "h", "quit", "q", "options", "o", "logs"};
   int num_choices = sizeof(valid_actions) / sizeof(valid_actions[0]);
 
   for (int num = 0; num < num_choices; num++) {
-    if (action == valid_actions[num]) {
+    if (strcmp(action, valid_actions[num]) == 0) {
       return 1;
+    } else {
+
+      // printf("Comparison between %s and %s failed \n", action, valid_actions[num]); DEBUG
+
     }
   }
-
+  
   return 0;
 }
 
-char ask_action() {
-    char choice_any, choice;
-    printf("What action would you like to do? \n");
-    scanf(" %c", &choice_any);
+char* ask_action() {
+  
+  static char choice[ACTION_MAX_LENGTH];
+  
+  printf("What action would you like to do? \n");
+  scanf(" %s", choice);
+  
+  while (getchar() != '\n');
+  
+  lower_string(choice);
 
-    choice = tolower(choice_any);
+  while (is_action_valid(choice) != 1) {
+     printf("Wrong action. List of actions: \n"
+	     "'right' -> move right \n"
+	     "'left' -> move left \n"
+	     "'up' -> move up \n"
+	     "'down' -> move down \n"
+	     "'mine' -> mine block \n"
+	     "'place' -> place block \n"
+	     "'eat' -> eat food \n"
+	     "'inventory' -> show inventory \n"
+	     "'statistics' -> show statistics \n"
+	     "'help' -> help menu \n"
+	     "'quit' -> quit \n"
+	     "'options' -> options \n"
+	     "'logs' -> show action log \n");
+     scanf(" %s", choice);
 
-    while (getchar() != '\n');
+     while (getchar() != '\n');
 
-    while (is_action_valid(choice) != 1) {
-      printf("Wrong action. List of actions: \n"
-	     "'r' -> move right \n"
-	     "'l' -> move left \n"
-	     "'u' -> move up \n"
-	     "'d' -> move down \n"
-	     "'m' -> mine block \n"
-	     "'p' -> place block \n"
-	     "'e' -> eat food \n"
-	     "'i' -> show inventory \n"
-	     "'s' -> show statistics \n"
-	     "'h' -> help menu \n"
-	     "'q' -> quit \n"
-	     "'o' -> options \n"
-	     "'x' -> show action log \n");
-      scanf(" %c", &choice);
-
-      while (getchar() != '\n');
-    }
-
-    if (confirm_action == 1) {
-      char answer = '\0';
-      while (answer != 'Y' && answer != 'y' && answer != 'n' && answer != 'N') {
-        printf("Are you sure you want to do the following action? %c \n", choice);
-        scanf(" %c", &answer);
-
-	while (getchar() != '\n');
-      }
-
-      if (answer == 'n' || answer == 'N') {
-        return ask_action();
-      } else if (answer == 'y' || answer == 'Y') {
-        return choice;
-      }
-    }
-
-    return choice;
+     lower_string(choice);
+  }
+  return choice;
 }
 
 void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
 
-  char choice = ask_action();
+  char* choice = ask_action();
   int mined, placed;
   
   char stored_lines[log_lines_amount][ACTION_MAX_LENGTH];
   int num_lines_stored;
-  int smaller = num_lines_stored < log_lines_amount ? num_lines_stored : log_lines_amount;
+  int smaller;
 
-  char choice_log[] = {choice, '\n', '\0'};
+  char choice_log[ACTION_MAX_LENGTH];
+  strcpy(choice_log, choice);
+  strcat(choice_log, "\n");
   
   write_char(choice_log);
 
-  switch(choice) {
-
-  case 'r':
+  if (strcmp(choice, "r") == 0 || strcmp(choice, "right") == 0) {
     move_direction(world, pos_x, pos_y, 0, 1, adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
-    break;
 
-  case 'd':
+  } else if (strcmp(choice, "d") == 0 || strcmp(choice, "down") == 0) {
     move_direction(world, pos_x, pos_y, 1, 0, adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
-    break;
 
-  case 'l':
+  } else if (strcmp(choice, "l") == 0 || strcmp(choice, "left") == 0) {
     move_direction(world, pos_x, pos_y, 0, -1, adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
-    break;
 
-  case 'u':
+  } else if (strcmp(choice, "u") == 0 || strcmp(choice, "up") == 0) {
     move_direction(world, pos_x, pos_y, -1, 0, adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
-    break;
 
-  case 'm':
+  } else if (strcmp(choice, "m") == 0 || strcmp(choice, "mine") == 0) {
     mined = mine(world, *pos_x, *pos_y, adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
     if (mined == 0) printf("There is no block to mine \n");
     if (mined == 1); // Success
     if (mined == 2) printf("You can't mine this block \n");
     if (mined == 4) printf("You're too hungry to do this \n");
-    break;
 
-  case 'p':
+  } else if (strcmp(choice, "p") == 0 || strcmp(choice, "place") == 0) {
     placed = place(world, *pos_x, *pos_y, adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
     if (placed == 0) printf("You don't have the block you want to place \n");
@@ -525,24 +520,20 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
     if (placed == 2) printf("This can't be placed \n");
     if (placed == 3) printf("You can't place this block here \n");
     if (placed == 4) printf("You're too hungry to do this \n");
-    break;
 
-  case 'e':
+  } else if (strcmp(choice, "e") == 0 || strcmp(choice, "eat") == 0) {
     eat_food(adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
-    break;
 
-  case 'i':
+  } else if (strcmp(choice, "i") == 0 || strcmp(choice, "inventory") == 0 || strcmp(choice, "inv") == 0) {
     system("cls");
     print_inventory(&adv->inv_adv);
-    break;
 
-  case 's':
+  } else if (strcmp(choice, "s") == 0 || strcmp(choice, "statistics") == 0 || strcmp(choice, "stats") == 0) {
     system("cls");
     print_stats_adv(adv);
-    break;
 
-  case 'h':
+  } else if (strcmp(choice, "h") == 0) {
     update_terminal(world, *adv, *pos_x, *pos_y);
     printf("List of actions: \n"
 	   "'r' -> move right \n"
@@ -556,26 +547,38 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
 	   "'q' -> quit \n"
 	   "'o' -> options \n"
 	   );
-    break;
 
-  case 'q':
+  } else if (strcmp(choice, "help") == 0) {
+    update_terminal(world, *adv, *pos_x, *pos_y);
+    printf("List of actions: \n"
+	     "'right' -> move right \n"
+	     "'left' -> move left \n"
+	     "'up' -> move up \n"
+	     "'down' -> move down \n"
+	     "'mine' -> mine block \n"
+	     "'place' -> place block \n"
+	     "'eat' -> eat food \n"
+	     "'inventory' -> show inventory \n"
+	     "'statistics' -> show statistics \n"
+	     "'help' -> help menu \n"
+	     "'quit' -> quit \n"
+	     "'options' -> options \n"
+	     "'logs' -> show action log \n");
+
+  } else if (strcmp(choice, "q" ) == 0 || strcmp(choice, "quit") == 0) {
     printf("Closing game \n");
     ExitProcess(0);
 
-  case 'o':
+  } else if (strcmp(choice, "o") == 0 || strcmp(choice, "options") == 0) {
     system("cls");
     options_menu();
     update_terminal(world, *adv, *pos_x, *pos_y);
-    break;
 
-  case 'x':
+  } else if (strcmp(choice, "logs") == 0) {
     store_last_n_lines(log_lines_amount, stored_lines, &num_lines_stored);
     printf("Last %d actions: \n", log_lines_amount);
+    smaller = num_lines_stored < log_lines_amount ? num_lines_stored : log_lines_amount;
     print_n_lines(smaller, stored_lines);
-    break;
-    
-  default:
-    break;
-  }
+  } else {}
   
 }

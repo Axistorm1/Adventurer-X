@@ -1,4 +1,4 @@
-#define INSTALLED_VERSION 1.27
+#define INSTALLED_VERSION 1.28
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -99,7 +99,7 @@ void check_up_to_date(){
 
     printf("%c \n", answer);
       
-    if (answer == 'y') {
+    if (answer == 'y' || answer == 'Y') {
       download_updated_files();
       printf("Updated files \n");
       printf("Closing in 5 seconds \n");

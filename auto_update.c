@@ -1,4 +1,4 @@
-#define INSTALLED_VERSION 1.46
+#define INSTALLED_VERSION 1.47
 char UPDATE_CONTENT[] = {"\t1.29 -> Place blocks \n\t"
 "1.30 -> Actions log \n\t"
 "1.31 -> Actions as strings \n\t"
@@ -17,7 +17,9 @@ char UPDATE_CONTENT[] = {"\t1.29 -> Place blocks \n\t"
 "        Fixed place in cinematic world + place_block option \n\t"
 "1.44 -> Added credits \n\t"
 "1.45 -> Auto-updater changes \n\t"
-"1.46 -> Keybinds menu stays open after value assignation \n\t"};
+"1.46 -> Keybinds menu stays open after value assignation \n\t"
+"1.47 -> All option menus stay open after value assignation \n\t"
+"        All worlds listed when loading files + minor changes & fixes \n\t"};
 
 #include <stdio.h>
 #include <stdlib.h>

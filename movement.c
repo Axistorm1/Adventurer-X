@@ -6,6 +6,7 @@
 
 #define GAME_NAME "Adventurer X"
 #define GAME_AUTHOR "Axistorm"
+#define SAVE_FILES_EXTENSION ".save"
 #define ONLINE_MODE 1
 
 #if ONLINE_MODE == 1 
@@ -37,6 +38,7 @@ int play_action_log(int**** world, int* pos_x, int* pos_y, struct adventurer* ad
 int world_size_x = 16;
 int world_size_y = 16;
 char world_name[32];
+char directory[32] = "saves";
 
 /* Game related stuff */
 int op_log_actions = 1;
@@ -79,6 +81,8 @@ char texture_default = 'D';
 
 int main(void) {
 
+  system("cls");
+
   /* Check if game is updated */
   if (ONLINE_MODE == 1) {
     check_up_to_date();
@@ -97,7 +101,8 @@ int main(void) {
   int load_or_create;
   
   printf("1 Load save file \n"
-	 "2 Create new world \n");
+	 "2 Create new world \n"
+	 "3 Change saves folder \n");
 
   scanf(" %d", &load_or_create);
 
@@ -108,13 +113,30 @@ int main(void) {
   int**** world;
   
   if (load_or_create == 1) {
+
+    system("cls");
+
     char filename[128];
     char confirmation = '\0';
     int loading_world;
+    int fileCount = 0;
+    char **fileNames = getFilesWithExtension(directory, SAVE_FILES_EXTENSION, &fileCount);
+
+    if (fileNames == NULL) {
+        fprintf(stderr, "Failed to read directory or no files found.\n");
+        return EXIT_FAILURE;
+    }
+
+    printf("Worlds: \n\n");
+    for (int i = 0; i < fileCount; i++) {
+        printf(" - %s\n", fileNames[i]);
+    }
+
+    freeFileNames(fileNames, fileCount);
 
     while (loading_world != 1) {
 
-    printf("What save file would you like to load? \n");
+    printf("\nWhat world would you like to load? \n");
     scanf(" %s", filename);
 
     while(getchar() != '\n');
@@ -142,7 +164,9 @@ int main(void) {
   }
   
   if (load_or_create == 2) {
-
+    system("cls");
+    printf("New world: \n\n");
+    
     printf("Choose world name = ");
     scanf(" %s", world_name);
 
@@ -162,10 +186,19 @@ int main(void) {
     
     save_world_size(world_size_x, world_size_y, world_name);
   }
+
+  if (load_or_create == 3) {
+    printf("Not available yet \n");
+    load_or_create = 4;
+  }
   
-  if (load_or_create != 1 && load_or_create != 2) {
+  if (load_or_create != 1 && load_or_create != 2 && load_or_create != 3) {
     ExitProcess(0);
   }
+
+  system("cls");
+  
+  printf("Playing in %s [%d*%d] \n", world_name, world_size_x, world_size_y);
   
   struct adventurer adv1;
   game_setup(&adv1);
@@ -433,7 +466,7 @@ int graphics_option_menu() {
     
   } else if (sub_option_id == 3) return 2;
   
-  return 1;
+  return 3;
 }
 
 int textures_option_menu() {
@@ -466,7 +499,7 @@ int textures_option_menu() {
     if (sub_option_id == 6) texture_6 = new_char;
   } else if (sub_option_id == 7) return 2;
   
-  return 1;
+  return 4;
 }
 
 int toggles_option_menu() {
@@ -501,7 +534,7 @@ int toggles_option_menu() {
     if (sub_option_id == 5) display_inventory = new_value;
   } else if (sub_option_id == 6) return 2;
 
-  return 1;
+  return 5;
 }
 
 int custom_values_option_menu() {
@@ -530,7 +563,7 @@ int custom_values_option_menu() {
     if (sub_option_id == 3) block_to_place = new_value;
   } else if (sub_option_id == 4) return 2;
 
-  return 1;
+  return 6;
 }
 
 int keybinds_option_menu(){
@@ -587,7 +620,7 @@ int keybinds_option_menu(){
     if (sub_option_id == 13) strcpy(logs_keybind, new_keybind);
   } else if (sub_option_id == 14) return 2;
 
-  return 3;
+  return 7;
 }
 
 int options_menu() {
@@ -616,14 +649,22 @@ int options_menu() {
     if (option_id == 5) sub_return = keybinds_option_menu();
   } else if (option_id == 6) return 1;
   
-  if (sub_return == 2) {
+  while (sub_return != 1) {
     system("cls");
-    options_menu();
-  } else if (sub_return == 3) {
-    system("cls");
-    keybinds_option_menu();
+    if (sub_return == 2) {
+      sub_return = options_menu();
+    } else if (sub_return == 3) {
+      sub_return = graphics_option_menu();
+    } else if (sub_return == 4) {
+      sub_return = textures_option_menu();
+    } else if (sub_return == 5) {
+      sub_return = toggles_option_menu();
+    } else if (sub_return == 6) {
+      sub_return = custom_values_option_menu();
+    } else if (sub_return == 7) {
+      sub_return = keybinds_option_menu();
+    }
   }
-
   return 1;
 }
 
@@ -777,7 +818,7 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv, char*
   } else if (strcmp(default_choice, "q") == 0 || strcmp(default_choice, "quit") == 0 ||
              strcmp(default_choice, "o") == 0 || strcmp(default_choice, "options") == 0 ||
              strcmp(default_choice, "help") == 0 || strcmp(default_choice, "h") == 0 || 
-             strcmp(default_choice, "logs") == 0) {
+             strcmp(default_choice, "logs") == 0 || strcmp(default_choice, "credits") == 0) {
     return;
   } else {
     choice = default_choice;

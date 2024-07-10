@@ -111,8 +111,6 @@ int load_all_actions(char strings[MAX_STRINGS][ACTION_MAX_LENGTH], char* filenam
   strcat(filename_extended, filename);
   strcat(filename_extended, extension);
 
-  printf("%s \n", filename_extended);
-
   FILE *file = fopen(filename_extended, "r");
   if (file == NULL) {
     printf("File couldn't be opened \n");

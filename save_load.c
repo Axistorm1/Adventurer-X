@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <ctype.h>
+#include <dirent.h>
 
 // Platform-specific includes for mkdir
 #ifdef _WIN32
@@ -248,4 +249,43 @@ int** load_chunk_from_position(char* filename, long position) {
     fclose(file);
     free(filename_extended);
     return chunk;
+}
+
+
+char **getFilesWithExtension(const char *path, const char *extension, int *fileCount) {
+    struct dirent *entry;
+    DIR *dp = opendir(path);
+    char **fileNames = NULL;
+    int count = 0;
+    size_t extLength = strlen(extension);
+
+    if (dp == NULL) {
+        perror("opendir");
+        return NULL;
+    }
+
+    while ((entry = readdir(dp))) {
+            size_t len = strlen(entry->d_name);
+            if (len > extLength && strcmp(entry->d_name + len - extLength, extension) == 0) {
+                // Allocate memory for base filename without extension
+                char *baseName = malloc((len - extLength + 1) * sizeof(char));
+                strncpy(baseName, entry->d_name, len - extLength);
+                baseName[len - extLength] = '\0';
+
+                count++;
+                fileNames = realloc(fileNames, count * sizeof(char *));
+                fileNames[count - 1] = baseName;
+            }
+    }
+
+    closedir(dp);
+    *fileCount = count;
+    return fileNames;
+}
+
+void freeFileNames(char **fileNames, int fileCount) {
+    for (int i = 0; i < fileCount; i++) {
+        free(fileNames[i]);
+    }
+    free(fileNames);
 }

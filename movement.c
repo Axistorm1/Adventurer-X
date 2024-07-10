@@ -38,6 +38,9 @@ int world_size_x = 16;
 int world_size_y = 16;
 char world_name[32];
 
+/* Game related stuff */
+int op_log_actions = 1;
+
 /* Options */
 int confirm_action = 0;
 int radius_x = 16;
@@ -107,7 +110,7 @@ int main(void) {
     char filename[128];
     char confirmation = '\0';
     
-    printf("What save file would you like to load?");
+    printf("What save file would you like to load? \n");
     scanf(" %s", filename);
 
     while(getchar() != '\n');
@@ -117,7 +120,7 @@ int main(void) {
     strcpy(world_name, filename);
 
     while (confirmation != 'Y' && confirmation != 'y' && confirmation != 'N' && confirmation != 'n') {
-      printf("Do you want to load %s (height = %d, width = %d)? [Y/N]", filename, world_size_x, world_size_y);
+      printf("Do you want to load %s (height = %d, width = %d)? [Y/N] \n", filename, world_size_x, world_size_y);
       scanf(" %c", &confirmation);
 
       while (getchar() != '\n');
@@ -712,16 +715,80 @@ char* ask_action() {
   return choice;
 }
 
+int translate_custom_keybinds(char* choice, int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
+  if (strcmp(choice, right_keybind) == 0) {
+    action(world, pos_x, pos_y, adv, "r");
+    return 1;
+  }
+  if (strcmp(choice, left_keybind) == 0) {
+    action(world, pos_x, pos_y, adv, "l");
+    return 1;
+  }
+  if (strcmp(choice, down_keybind) == 0) {
+    action(world, pos_x, pos_y, adv, "d");
+    return 1;
+  }
+  if (strcmp(choice, up_keybind) == 0) {
+    action(world, pos_x, pos_y, adv, "u");
+    return 1;
+  }
+  if (strcmp(choice, mine_keybind) == 0) {
+    action(world, pos_x, pos_y, adv, "m");
+    return 1;
+  }
+  if (strcmp(choice, place_keybind) == 0) {
+    action(world, pos_x, pos_y, adv, "p");
+    return 1;
+  }
+  if (strcmp(choice, eat_keybind) == 0) {
+    action(world, pos_x, pos_y, adv, "e");
+    return 1;
+  }
+  if (strcmp(choice, inventory_keybind) == 0) {
+    action(world, pos_x, pos_y, adv, "i");
+    return 1;
+  }
+  if (strcmp(choice, statistics_keybind) == 0) {
+    action(world, pos_x, pos_y, adv, "s");
+    return 1;
+  }
+  if (strcmp(choice, help_keybind) == 0) {
+    action(world, pos_x, pos_y, adv, "help");
+    return 1;
+  }
+  if (strcmp(choice, quit_keybind) == 0) {
+    action(world, pos_x, pos_y, adv, "q");
+    return 1;
+  }
+  if (strcmp(choice, options_keybind) == 0) {
+    action(world, pos_x, pos_y, adv, "o");
+    return 1;
+  }
+  if (strcmp(choice, logs_keybind) == 0) {
+    action(world, pos_x, pos_y, adv, "logs");
+    return 1;
+  }
+
+  return 0;
+}
+
 void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv, char* default_choice) {
 
   char* choice;
   
-  if (strcmp(default_choice, "nothing") == 0 || strcmp(default_choice, "q") == 0 || strcmp(default_choice, "quit") == 0){
+  if (strcmp(default_choice, "nothing") == 0){
   choice = ask_action();
+  } else if (strcmp(default_choice, "q") == 0 || strcmp(default_choice, "quit") == 0 ||
+             strcmp(default_choice, "o") == 0 || strcmp(default_choice, "options") == 0 ||
+             strcmp(default_choice, "help") == 0 || strcmp(default_choice, "h") == 0 || 
+             strcmp(default_choice, "logs") == 0) {
+    return;
   } else {
     choice = default_choice;
   }
   
+  if (translate_custom_keybinds(choice, world, pos_x, pos_y, adv) == 1) return;
+
   int mined, placed, ate;
   
   char stored_lines[log_lines_amount][ACTION_MAX_LENGTH];
@@ -732,9 +799,9 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv, char*
   strcpy(choice_log, choice);
   strcat(choice_log, "\n");
   
-  write_char(choice_log, world_name);
+  if (op_log_actions == 1) write_char(choice_log, world_name);
 
-  if (strcmp(choice, "r") == 0 || strcmp(choice, "right") == 0 || strcmp(choice, right_keybind) == 0) {
+  if (strcmp(choice, "r") == 0 || strcmp(choice, "right") == 0) {
     move_direction(world, pos_x, pos_y, 0, 1, adv);
     update_terminal(world, *adv, *pos_x, *pos_y);
 
@@ -838,9 +905,13 @@ int play_action_log(int**** world, int* pos_x, int* pos_y, struct adventurer* ad
 
   actions = load_all_actions(lines, world_name);
 
+  op_log_actions = 0;
+  
   for(int i = 0; i < actions; i++){
     action(world, pos_x, pos_y, adv, lines[i]);
   }
 
+  op_log_actions = 1;
+  
   return 1;
 }

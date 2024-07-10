@@ -1,4 +1,4 @@
-#define INSTALLED_VERSION 1.44
+#define INSTALLED_VERSION 1.45
 char UPDATE_CONTENT[] = {"\t1.29 -> Place blocks \n\t"
 "1.30 -> Actions log \n\t"
 "1.31 -> Actions as strings \n\t"
@@ -15,7 +15,8 @@ char UPDATE_CONTENT[] = {"\t1.29 -> Place blocks \n\t"
 "1.43 -> Optimized display function \n\t"
 "       Fixed bug when loading inexistent file \n\t"
 "       Fixed place in cinematic world + place_block option \n\t"
-"1.44 -> Added credits\n\t"};
+"1.44 -> Added credits \n\t"
+"1.45 -> Auto-updater changes \n\t"};
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -128,21 +129,18 @@ void check_up_to_date(){
   system("del up_to_date.txt");
 
   if (is_up_to_date(INSTALLED_VERSION, UPTODATE_VERSION) == 0) {
-    
-    printf("Would you like to update the game?");
-    scanf(" %c", &answer);
-
-    while(getchar() != '\n');
-
-    printf("%c \n", answer);
-      
+    while (answer != 'y' && answer != 'Y' && answer != 'N' && answer != 'n') {
+      printf("Would you like to update the game? [Y/N] \n");
+      scanf(" %c", &answer);
+      while(getchar() != '\n');
+  }
     if (answer == 'y' || answer == 'Y') {
       download_updated_files(UPTODATE_VERSION);
       printf("Updated files \n");
       printf("Closing in 5 seconds \n");
       Sleep(5000);
       ExitProcess(0);
-    } else {
+    } else if (answer == 'N' || answer == 'n') {
       printf("Didn't update \n");
     }
   }

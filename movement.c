@@ -30,12 +30,13 @@ int eat_food(struct adventurer* adv);
 int options_menu();
 int is_action_valid(char* action);
 char* ask_action();
-void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv);
+void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv, char* default_choice);
+int play_action_log(int**** world, int* pos_x, int* pos_y, struct adventurer* adv);
 
 /* World options, modifiable at start-up */ 
 int world_size_x = 16;
 int world_size_y = 16;
-static char world_name[32];
+char world_name[32];
 
 /* Options */
 int confirm_action = 0;
@@ -112,6 +113,8 @@ int main(void) {
     while(getchar() != '\n');
 
     load_world_size(&world_size_x, &world_size_y, filename);
+    
+    strcpy(world_name, filename);
 
     while (confirmation != 'Y' && confirmation != 'y' && confirmation != 'N' && confirmation != 'n') {
       printf("Do you want to load %s (height = %d, width = %d)? [Y/N]", filename, world_size_x, world_size_y);
@@ -162,12 +165,16 @@ int main(void) {
 
   int current_position_x = start_position_x;
   int current_position_y = start_position_y;
-
   
   update_terminal(world, adv1, current_position_x, current_position_y);
 
+  if (load_or_create == 1) {
+    play_action_log(world, &current_position_x, &current_position_y, &adv1);
+  }
+
   while(1){
-    action(world, &current_position_x, &current_position_y, &adv1);
+    char* default_action = {"nothing"};
+    action(world, &current_position_x, &current_position_y, &adv1, default_action);
     }
 
   return 1; 
@@ -705,9 +712,16 @@ char* ask_action() {
   return choice;
 }
 
-void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
+void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv, char* default_choice) {
 
-  char* choice = ask_action();
+  char* choice;
+  
+  if (strcmp(default_choice, "nothing") == 0 || strcmp(default_choice, "q") == 0 || strcmp(default_choice, "quit") == 0){
+  choice = ask_action();
+  } else {
+    choice = default_choice;
+  }
+  
   int mined, placed, ate;
   
   char stored_lines[log_lines_amount][ACTION_MAX_LENGTH];
@@ -718,7 +732,7 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
   strcpy(choice_log, choice);
   strcat(choice_log, "\n");
   
-  write_char(choice_log);
+  write_char(choice_log, world_name);
 
   if (strcmp(choice, "r") == 0 || strcmp(choice, "right") == 0 || strcmp(choice, right_keybind) == 0) {
     move_direction(world, pos_x, pos_y, 0, 1, adv);
@@ -810,10 +824,23 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
     update_terminal(world, *adv, *pos_x, *pos_y);
 
   } else if (strcmp(choice, "logs") == 0 || strcmp(choice, logs_keybind) == 0) {
-    store_last_n_lines(log_lines_amount, stored_lines, &num_lines_stored);
+    store_last_n_lines(log_lines_amount, stored_lines, &num_lines_stored, world_name);
     printf("Last %d actions: \n", log_lines_amount);
     smaller = num_lines_stored < log_lines_amount ? num_lines_stored : log_lines_amount;
     print_n_lines(smaller, stored_lines);
   } else {}
   
+}
+
+int play_action_log(int**** world, int* pos_x, int* pos_y, struct adventurer* adv){
+  char lines[MAX_STRINGS][ACTION_MAX_LENGTH];
+  int actions;
+
+  actions = load_all_actions(lines, world_name);
+
+  for(int i = 0; i < actions; i++){
+    action(world, pos_x, pos_y, adv, lines[i]);
+  }
+
+  return 1;
 }

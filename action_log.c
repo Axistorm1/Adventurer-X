@@ -2,13 +2,28 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define ACTION_LOG_FILE "action_logs.txt"
-#define ACTION_MAX_LENGTH 12
+#define ACTION_MAX_LENGTH 32
+#define MAX_STRINGS 10000
 
-int write_char(char* executed_action) {
+int write_char(char* executed_action, char* filename) {
+  char* dir = "saves";
+  char* extension = ".logs";
+  size_t dir_len = strlen(dir);
+  size_t filename_len = strlen(filename);
+  size_t extension_len = strlen(extension);
 
-  FILE *file = fopen(ACTION_LOG_FILE, "a");
+  char* filename_extended = malloc(dir_len + 1 + filename_len + extension_len + 1);
+    if (filename_extended == NULL) {
+        perror("Memory allocation for filename failed");
+        return 1;
+    }
 
+  strcpy(filename_extended, dir);
+  strcat(filename_extended, "/");
+  strcat(filename_extended, filename);
+  strcat(filename_extended, extension);
+
+  FILE *file = fopen(filename_extended, "a");
   if (file == NULL) {
     printf("File couldn't be opened \n");
     exit(1);
@@ -22,11 +37,29 @@ int write_char(char* executed_action) {
   return 1;
 }
 
-void store_last_n_lines(int n, char lines[][ACTION_MAX_LENGTH], int *num_lines_stored) {
+void store_last_n_lines(int n, char lines[][ACTION_MAX_LENGTH], int *num_lines_stored, char* filename) {
+  char* dir = "saves";
+  char* extension = ".logs";
+  size_t dir_len = strlen(dir);
+  size_t filename_len = strlen(filename);
+  size_t extension_len = strlen(extension);
 
-  FILE *file;
+  char* filename_extended = malloc(dir_len + 1 + filename_len + extension_len + 1);
+    if (filename_extended == NULL) {
+        perror("Memory allocation for filename failed");
+        exit(1);
+    }
 
-  file = fopen(ACTION_LOG_FILE, "r");
+  strcpy(filename_extended, dir);
+  strcat(filename_extended, "/");
+  strcat(filename_extended, filename);
+  strcat(filename_extended, extension);
+
+  FILE *file = fopen(filename_extended, "a");
+  if (file == NULL) {
+    printf("File couldn't be opened \n");
+    exit(1);
+  }
 
   if (file == NULL) {
     printf("File couldn't be opened \n");
@@ -59,29 +92,58 @@ void store_last_n_lines(int n, char lines[][ACTION_MAX_LENGTH], int *num_lines_s
   
 }
 
+int load_all_actions(char strings[MAX_STRINGS][ACTION_MAX_LENGTH], char* filename){
+
+  char* dir = "saves";
+  char* extension = ".logs";
+  size_t dir_len = strlen(dir);
+  size_t filename_len = strlen(filename);
+  size_t extension_len = strlen(extension);
+
+  char* filename_extended = malloc(dir_len + 1 + filename_len + extension_len + 1);
+    if (filename_extended == NULL) {
+        perror("Memory allocation for filename failed");
+        return 1;
+    }
+
+  strcpy(filename_extended, dir);
+  strcat(filename_extended, "/");
+  strcat(filename_extended, filename);
+  strcat(filename_extended, extension);
+
+  printf("%s", filename_extended);
+
+  FILE *file = fopen(filename_extended, "r");
+  if (file == NULL) {
+    printf("File couldn't be opened \n");
+    exit(1);
+  }
+
+    char buffer[ACTION_MAX_LENGTH];
+    int count = 0;
+
+    // Read each line from the file
+    while (fgets(buffer, ACTION_MAX_LENGTH, file) != NULL) {
+        // Remove newline character if present
+        buffer[strcspn(buffer, "\n")] = '\0';
+
+        // Copy the string from buffer to the 2D array
+        strncpy(strings[count], buffer, ACTION_MAX_LENGTH - 1);
+        strings[count][ACTION_MAX_LENGTH - 1] = '\0';  // Ensure null-termination
+        count++;
+
+        // Check if we've reached the maximum number of strings
+        if (count >= MAX_STRINGS) {
+            break;
+        }
+    }
+
+    fclose(file);
+    return count;
+}
+
 void print_n_lines(int n, char lines[][ACTION_MAX_LENGTH]) {
     for (int i = 0; i < n; i++) {
       printf("-> %s", lines[i]);
     }
   }
-
-int use_exemple() {
-
-  char a[] = "mine \n";
-  
-  write_char(a);
-  write_char(a);
-  write_char(a);
-
-  char lines[5][ACTION_MAX_LENGTH];
-  int num_lines_stored;
-  
-  store_last_n_lines(5, lines, &num_lines_stored);
-
-  int smaller = num_lines_stored < 5 ? num_lines_stored : 5;
-  
-  print_n_lines(smaller, lines);
-  
-  return 0;
-  
-}

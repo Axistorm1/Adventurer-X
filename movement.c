@@ -2,7 +2,6 @@
 #include "world_generator.c"
 #include <ctype.h>
 #include <conio.h>
-#include "action_log.c"
 
 #define GAME_NAME "Adventurer X"
 #define GAME_AUTHOR "Axistorm"
@@ -38,7 +37,6 @@ int play_action_log(int**** world, int* pos_x, int* pos_y, struct adventurer* ad
 int world_size_x = 16;
 int world_size_y = 16;
 char world_name[32];
-char directory[32] = "saves";
 
 /* Game related stuff */
 int op_log_actions = 1;
@@ -79,52 +77,44 @@ char texture_6 = 6;
 char texture_default = 'D';
 
 
-int main(void) {
-
-  system("cls");
-
-  /* Check if game is updated */
+void check_online_mode() {
   if (ONLINE_MODE == 1) {
     check_up_to_date();
-  } else if (ONLINE_MODE == 0) printf("Running in offline mode \nYou won't be able to update \n");
-  
-  /* Seeding pseudo-random number generator */
-  srand(time(NULL));
+  } else if (ONLINE_MODE == 0) printf("Running in offline mode \n"
+                                      "You won't be able to update \n");}
 
+void press_any_key() {
   printf("\n");
   printf("Welcome to %s! Ready to start a new adventure? \n"
-	 "Press any key to start... ", GAME_NAME);
+	       "Press any key to start... ", GAME_NAME);
   _getch();
+}
 
-  system("cls");
-
+int start_menu_choice() {
   int load_or_create;
-  
-  printf("1 Load save file \n"
-	 "2 Create new world \n"
-	 "3 Change saves folder \n");
+    printf("1 Load save file \n"
+	         "2 Create new world \n"
+	         "3 Change saves folder \n");
 
   scanf(" %d", &load_or_create);
 
   while(getchar() != '\n');
 
-  /* Load or create the world, create the adventurer, execute world action_log */
+  return load_or_create;
+}
 
-  int**** world;
-  
-  if (load_or_create == 1) {
-
+int**** load_save_file_menu() {
     system("cls");
 
     char filename[128];
     char confirmation = '\0';
-    int loading_world;
+    int loading_world = 0;
     int fileCount = 0;
-    char **fileNames = getFilesWithExtension(directory, SAVE_FILES_EXTENSION, &fileCount);
 
+    char **fileNames = getFilesWithExtension(directory, SAVE_FILES_EXTENSION, &fileCount);
     if (fileNames == NULL) {
-        fprintf(stderr, "Failed to read directory or no files found.\n");
-        return EXIT_FAILURE;
+        fprintf(stderr, "There are no worlds saved.\n");
+        return NULL;
     }
 
     printf("Worlds: \n\n");
@@ -135,35 +125,36 @@ int main(void) {
     freeFileNames(fileNames, fileCount);
 
     while (loading_world != 1) {
+      
+      printf("\n");
+      printf("What world would you like to load? \n");
+      scanf(" %s", filename);
 
-    printf("\nWhat world would you like to load? \n");
-    scanf(" %s", filename);
+      while(getchar() != '\n');
 
-    while(getchar() != '\n');
+      loading_world = load_world_size(&world_size_x, &world_size_y, filename);
 
-    loading_world = load_world_size(&world_size_x, &world_size_y, filename);
-
-    if (loading_world == 0) printf("File loading failed \n");
-    if (loading_world == 4) printf("%s doesn't exist \n", filename);
-    }
+      if (loading_world == 0) printf("File loading failed \n");
+      if (loading_world == 4) printf("%s doesn't exist \n", filename);
+      }
 
     strcpy(world_name, filename);
 
-    while (confirmation != 'Y' && confirmation != 'y' && confirmation != 'N' && confirmation != 'n') {
-      printf("Do you want to load %s (height = %d, width = %d)? [Y/N] \n", filename, world_size_x, world_size_y);
+    while (1) {
+      printf("Do you want to load %s [%d*%d]? [Y/N] \n", filename, world_size_x, world_size_y);
       scanf(" %c", &confirmation);
-
       while (getchar() != '\n');
-    }
-    
-    if (confirmation == 'Y' || confirmation == 'y') {
-      world = create_world_from_file(world_size_x, world_size_y, filename);
-    } else {
-      ExitProcess(0);
-    }
-  }
-  
-  if (load_or_create == 2) {
+
+      if (confirmation == 'Y' || confirmation == 'y') {
+        return create_world_from_file(world_size_x, world_size_y, filename);
+
+      } else if (confirmation == 'N' || confirmation == 'n') {
+        return NULL;
+      }
+    } return NULL;
+}
+
+int**** new_world_menu() {
     system("cls");
     printf("New world: \n\n");
     
@@ -182,23 +173,46 @@ int main(void) {
 
     while(getchar() != '\n');
   
-    world = create_world(world_size_x, world_size_y, world_name);
-    
     save_world_size(world_size_x, world_size_y, world_name);
-  }
 
-  if (load_or_create == 3) {
-    printf("Not available yet \n");
-    load_or_create = 4;
-  }
-  
-  if (load_or_create != 1 && load_or_create != 2 && load_or_create != 3) {
-    ExitProcess(0);
+    return create_world(world_size_x, world_size_y, world_name);
+}
+
+int main(void) {
+  system("cls");
+  /* Check if game is updated */
+  check_online_mode();
+  /* Seeding pseudo-random number generator */
+  srand(time(NULL));
+  /* Press any key to begin text */
+  press_any_key();
+  system("cls");
+
+  /* Load or create the world, create the adventurer, execute world action_log */
+  int**** world = NULL;
+  int load_or_create;
+
+  while (world == NULL) {
+  /* Start menu */
+    load_or_create = start_menu_choice();
+
+    if (load_or_create == 1) {
+      world = load_save_file_menu();
+      }
+    if (load_or_create == 2) world = new_world_menu();
+
+    if (load_or_create == 3) {
+      system("cls");
+      printf("Current save directory: %s \n", directory);
+      printf("Select destination directory \n");
+      scanf(" %s", directory);
+      while (getchar() != '\n');
+      system("cls");
+    }
   }
 
   system("cls");
-  
-  printf("Playing in %s [%d*%d] \n", world_name, world_size_x, world_size_y);
+  printf("Playing on %s [%d*%d] \n", world_name, world_size_x, world_size_y);
   
   struct adventurer adv1;
   game_setup(&adv1);
@@ -212,9 +226,9 @@ int main(void) {
   
   update_terminal(world, adv1, current_position_x, current_position_y);
 
-  if (load_or_create == 1) {
+ if (load_or_create == 1) {
     play_action_log(world, &current_position_x, &current_position_y, &adv1);
-  }
+  } 
 
   while(1){
     char* default_action = {"nothing"};
@@ -934,9 +948,11 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv, char*
     print_n_lines(smaller, stored_lines);
 
   } else if (strcmp(choice, "world") == 0) {
+    int total_blocks = world_size_x * world_size_y * chunk_size_x * chunk_size_y;
     system("cls");
     printf("World name: %s \n", world_name);
     printf("World size: [%d*%d] \n", world_size_x, world_size_y);
+    printf("Total blocks in world: %d \n", total_blocks);
     
   } else if (strcmp(choice, "credits") == 0) {
     system("cls");

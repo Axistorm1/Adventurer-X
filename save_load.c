@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <ctype.h>
 #include <dirent.h>
+#include "action_log.c"
 
 // Platform-specific includes for mkdir
 #ifdef _WIN32
@@ -18,9 +19,8 @@
 int chunk_size_x = 8, chunk_size_y = 8;
 
 int save_world_size(int world_size_x, int world_size_y, char* filename){
-    char* dir = "saves";
     char* extension = ".size";
-    size_t dir_len = strlen(dir);
+    size_t dir_len = strlen(directory);
     size_t filename_len = strlen(filename);
     size_t extension_len = strlen(extension);
 
@@ -31,17 +31,17 @@ int save_world_size(int world_size_x, int world_size_y, char* filename){
         return 1;
     }
 
-    strcpy(filename_extended, dir);
+    strcpy(filename_extended, directory);
     strcat(filename_extended, "/");
     strcat(filename_extended, filename);
     strcat(filename_extended, extension);
 
     struct stat st = {0};
-    if (stat(dir, &st) == -1) {
+    if (stat(directory, &st) == -1) {
         #ifdef _WIN32
-        if (_mkdir(dir) != 0) {
+        if (_mkdir(directory) != 0) {
         #else
-        if (mkdir(dir, 0755) != 0) {
+        if (mkdir(directory, 0755) != 0) {
         #endif
             perror("Failed to create directory");
             free(filename_extended);
@@ -66,9 +66,8 @@ int save_world_size(int world_size_x, int world_size_y, char* filename){
 }
 
 int load_world_size(int* world_size_x, int* world_size_y, char* filename){
-    char* dir = "saves";
     char* extension = ".size";
-    size_t dir_len = strlen(dir);
+    size_t dir_len = strlen(directory);
     size_t filename_len = strlen(filename);
     size_t extension_len = strlen(extension);
 
@@ -78,7 +77,7 @@ int load_world_size(int* world_size_x, int* world_size_y, char* filename){
         return 0;
     }
 
-    strcpy(filename_extended, dir);
+    strcpy(filename_extended, directory);
     strcat(filename_extended, "/");
     strcat(filename_extended, filename);
     strcat(filename_extended, extension);
@@ -111,9 +110,8 @@ int load_world_size(int* world_size_x, int* world_size_y, char* filename){
 
 int save_chunk(int** chunk, char* filename) {
     // Create the /saves/ directory path and append the filename with ".save"
-    char* dir = "saves";
     char* extension = ".save";
-    size_t dir_len = strlen(dir);
+    size_t dir_len = strlen(directory);
     size_t filename_len = strlen(filename);
     size_t extension_len = strlen(extension);
 
@@ -125,7 +123,7 @@ int save_chunk(int** chunk, char* filename) {
     }
 
     // Build the full path
-    strcpy(filename_extended, dir);
+    strcpy(filename_extended, directory);
     strcat(filename_extended, "/");
     strcat(filename_extended, filename);
     strcat(filename_extended, extension);
@@ -133,11 +131,11 @@ int save_chunk(int** chunk, char* filename) {
 
     // Create the directory if it doesn't exist
     struct stat st = {0};
-    if (stat(dir, &st) == -1) {
+    if (stat(directory, &st) == -1) {
         #ifdef _WIN32
-        if (_mkdir(dir) != 0) {
+        if (_mkdir(directory) != 0) {
         #else
-        if (mkdir(dir, 0755) != 0) {
+        if (mkdir(directory, 0755) != 0) {
         #endif
             perror("Failed to create directory");
             free(filename_extended);
@@ -184,9 +182,8 @@ int** load_chunk_from_position(char* filename, long position) {
     }
 
     // Construct the full path to the file
-    char* dir = "saves";
     char* extension = ".save";
-    size_t dir_len = strlen(dir);
+    size_t dir_len = strlen(directory);
     size_t filename_len = strlen(filename);
     size_t extension_len = strlen(extension);
 
@@ -197,7 +194,7 @@ int** load_chunk_from_position(char* filename, long position) {
     }
 
     // Build the full path
-    strcpy(filename_extended, dir);
+    strcpy(filename_extended, directory);
     strcat(filename_extended, "/");
     strcat(filename_extended, filename);
     strcat(filename_extended, extension);

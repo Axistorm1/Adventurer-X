@@ -5,10 +5,11 @@
 #define ACTION_MAX_LENGTH 32
 #define MAX_STRINGS 10000
 
+char directory[32] = "saves";
+
 int write_char(char* executed_action, char* filename) {
-  char* dir = "saves";
   char* extension = ".logs";
-  size_t dir_len = strlen(dir);
+  size_t dir_len = strlen(directory);
   size_t filename_len = strlen(filename);
   size_t extension_len = strlen(extension);
 
@@ -18,7 +19,7 @@ int write_char(char* executed_action, char* filename) {
         return 1;
     }
 
-  strcpy(filename_extended, dir);
+  strcpy(filename_extended, directory);
   strcat(filename_extended, "/");
   strcat(filename_extended, filename);
   strcat(filename_extended, extension);
@@ -38,9 +39,8 @@ int write_char(char* executed_action, char* filename) {
 }
 
 void store_last_n_lines(int n, char lines[][ACTION_MAX_LENGTH], int *num_lines_stored, char* filename) {
-  char* dir = "saves";
   char* extension = ".logs";
-  size_t dir_len = strlen(dir);
+  size_t dir_len = strlen(directory);
   size_t filename_len = strlen(filename);
   size_t extension_len = strlen(extension);
 
@@ -50,7 +50,7 @@ void store_last_n_lines(int n, char lines[][ACTION_MAX_LENGTH], int *num_lines_s
         exit(1);
     }
 
-  strcpy(filename_extended, dir);
+  strcpy(filename_extended, directory);
   strcat(filename_extended, "/");
   strcat(filename_extended, filename);
   strcat(filename_extended, extension);
@@ -93,10 +93,8 @@ void store_last_n_lines(int n, char lines[][ACTION_MAX_LENGTH], int *num_lines_s
 }
 
 int load_all_actions(char strings[MAX_STRINGS][ACTION_MAX_LENGTH], char* filename){
-
-  char* dir = "saves";
   char* extension = ".logs";
-  size_t dir_len = strlen(dir);
+  size_t dir_len = strlen(directory);
   size_t filename_len = strlen(filename);
   size_t extension_len = strlen(extension);
 
@@ -106,7 +104,7 @@ int load_all_actions(char strings[MAX_STRINGS][ACTION_MAX_LENGTH], char* filenam
         return 1;
     }
 
-  strcpy(filename_extended, dir);
+  strcpy(filename_extended, directory);
   strcat(filename_extended, "/");
   strcat(filename_extended, filename);
   strcat(filename_extended, extension);

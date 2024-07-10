@@ -55,7 +55,6 @@ char right_keybind[32] = {"No keybind set"};
 char left_keybind[32] = {"No keybind set"};
 char up_keybind[32] = {"No keybind set"};
 char down_keybind[32] = {"No keybind set"};
-
 char eat_keybind[32] = {"No keybind set"};
 char inventory_keybind[32] = {"No keybind set"};
 char statistics_keybind[32] = {"No keybind set"};
@@ -104,11 +103,30 @@ int main(void) {
   int**** world;
   
   if (load_or_create == 1) {
-    printf("Feature not available yet \n");
-    printf("Switching to Create new world \n");
-    load_or_create = 2;
-  }
+    char filename[128];
+    char confirmation = '\0';
+    
+    printf("What save file would you like to load?");
+    scanf(" %s", filename);
 
+    while(getchar() != '\n');
+
+    load_world_size(&world_size_x, &world_size_y, filename);
+
+    while (confirmation != 'Y' && confirmation != 'y' && confirmation != 'N' && confirmation != 'n') {
+      printf("Do you want to load %s (height = %d, width = %d)? [Y/N]", filename, world_size_x, world_size_y);
+      scanf(" %c", &confirmation);
+
+      while (getchar() != '\n');
+    }
+    
+    if (confirmation == 'Y' || confirmation == 'y') {
+      world = create_world_from_file(world_size_x, world_size_y, filename);
+    } else {
+      ExitProcess(0);
+    }
+  }
+  
   if (load_or_create == 2) {
 
     printf("Choose world name = ");
@@ -126,8 +144,9 @@ int main(void) {
 
     while(getchar() != '\n');
   
-    world = create_world(world_size_x, world_size_y);
-  
+    world = create_world(world_size_x, world_size_y, world_name);
+    
+    save_world_size(world_size_x, world_size_y, world_name);
   }
   
   if (load_or_create != 1 && load_or_create != 2) {
@@ -144,6 +163,7 @@ int main(void) {
   int current_position_x = start_position_x;
   int current_position_y = start_position_y;
 
+  
   update_terminal(world, adv1, current_position_x, current_position_y);
 
   while(1){
@@ -665,6 +685,23 @@ char* ask_action() {
 
      lower_string(choice);
   }
+
+  if (confirm_action == 1) {
+      char answer = '\0';
+      while (answer != 'Y' && answer != 'y' && answer != 'n' && answer != 'N') {
+        printf("Are you sure you want to do the following action? %s \n", choice);
+        scanf(" %c", &answer);
+
+	while (getchar() != '\n');
+      }
+
+      if (answer == 'n' || answer == 'N') {
+        return ask_action();
+      } else if (answer == 'y' || answer == 'Y') {
+        return choice;
+      }
+    }
+  
   return choice;
 }
 

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "save_load.c"
 
 int** create_2d_arrays(int size_x, int size_y);
 int fill_chunk(int** chunk);
@@ -9,10 +10,7 @@ int** create_chunk(void);
 void print_chunk(int** chunk);
 char** load_structure_from_array(char* structure_array, int array_length);
 int add_structure(int** chunk, char** structure_recipe, int array_length);
-int**** create_world(int size_x, int size_y);
-
-int chunk_size_x = 8;
-int chunk_size_y = 8;
+int**** create_world(int size_x, int size_y, char* world_name);
 
 char sr1_array[] = {"00010101020103010401050106010701"
 		    "10011100120013031403150016001701"
@@ -24,7 +22,33 @@ char sr1_array[] = {"00010101020103010401050106010701"
 		    "70017101720173017401750176017701"};
 int sr1_array_length = sizeof(sr1_array) / sizeof(sr1_array[0]);
 
-int**** create_world(int size_x, int size_y){
+int**** create_world_from_file(int size_x, int size_y, char* filename){
+
+  int**** world = malloc(size_x * sizeof(int***));
+
+  if (world == NULL){
+    printf("Memory allocation failed \n");
+    return NULL;
+  }
+
+  int count = 0;
+
+  for(int x = 0; x < size_x; x++) {
+    world[x] = malloc(size_y * sizeof(int***));
+    if(world[x] == NULL) {
+      printf("Memory allocation failed \n");
+      return NULL;
+  }
+    for(int y = 0; y < size_y; y++) {
+      world[x][y] = load_chunk_from_position(filename, (count * chunk_size_x * chunk_size_y * 2));
+      count++;
+    }
+  }
+  return world;
+
+}
+
+int**** create_world(int size_x, int size_y, char* world_name){
 
   int**** world = malloc(size_x * sizeof(int***));
 			
@@ -41,6 +65,7 @@ int**** create_world(int size_x, int size_y){
   }
     for(int y = 0; y < size_y; y++) {
       world[x][y] = create_chunk();
+      save_chunk(world[x][y], world_name);
     }
   }
   return world;

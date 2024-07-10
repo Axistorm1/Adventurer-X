@@ -1,4 +1,4 @@
-#define INSTALLED_VERSION 1.38
+#define INSTALLED_VERSION 1.39
 char UPDATE_CONTENT[] = {"\t1.29 -> Place blocks \n\t"
 "1.30 -> Actions log \n\t"
 "1.31 -> Actions as strings \n\t"
@@ -7,7 +7,8 @@ char UPDATE_CONTENT[] = {"\t1.29 -> Place blocks \n\t"
 "1.35 -> Custom keybinds \n\t"
 "1.36 -> Option menu overhaul \n\t"
 "1.37 -> Start menu changes \n\t"
-"1.38 -> Created offline mode, debug-tool only"};
+"1.38 -> Created offline mode, debug-tool only \n\t"
+"1.39 -> Added world save and world load, action log isn't added to the world save yet \n\t"};
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -92,7 +92,7 @@ int main(void) {
 	 "Press any key to start... ", GAME_NAME);
   _getch();
 
-  printf("\n");
+  system("cls");
 
   int load_or_create;
   
@@ -641,7 +641,7 @@ int is_action_valid(char* action) {
 				 mine_keybind, "place", "p", place_keybind, "eat", "e", eat_keybind,
 				 "inventory", "i", inventory_keybind, "statistics", "s", statistics_keybind,
 				 "help", "h", help_keybind, "quit", "q", quit_keybind, "options", "o",
-				 options_keybind, "logs", logs_keybind};
+				 options_keybind, "logs", logs_keybind, "credits"};
 
   int num_choices = sizeof(valid_actions) / sizeof(valid_actions[0]);
 
@@ -649,9 +649,7 @@ int is_action_valid(char* action) {
     if (strcmp(action, valid_actions[num]) == 0) {
       return 1;
     } else {
-
       // printf("Comparison between %s and %s failed \n", action, valid_actions[num]); DEBUG
-
     }
   }
   
@@ -890,6 +888,11 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv, char*
     printf("Last %d actions: \n", log_lines_amount);
     smaller = num_lines_stored < log_lines_amount ? num_lines_stored : log_lines_amount;
     print_n_lines(smaller, stored_lines);
+  } else if (strcmp(choice, "credits") == 0) {
+    system("cls");
+    printf("Credits: \n\n"
+           "\t- Developer: Axistorm \n"
+           "\t- Testers: Spussi, Endrougrind, Brexatis, Aslav, Saumonleroux, Tajinerassis, Wjulio \n\n");
   } else {}
   
 }

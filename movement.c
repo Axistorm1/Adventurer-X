@@ -81,7 +81,7 @@ int main(void) {
   /* Check if game is updated */
   if (ONLINE_MODE == 1) {
     check_up_to_date();
-  }
+  } else if (ONLINE_MODE == 0) printf("Running in offline mode \nYou won't be able to update \n");
   
   /* Seeding pseudo-random number generator */
   srand(time(NULL));
@@ -417,6 +417,7 @@ int graphics_option_menu() {
   printf("Graphisms: \n"
 	 "1 Vertical view radius = %d \n"
 	 "2 Horizontal view radius = %d \n"
+	 "\n3 \t<- Back \n\n"
 	 ,radius_x, radius_y);
 
   printf("Choose an option to modify \n");
@@ -433,7 +434,7 @@ int graphics_option_menu() {
     if (sub_option_id == 1) radius_x = new_value;
     if (sub_option_id == 2) radius_y = new_value;
     
-  }
+  } else if (sub_option_id == 3) return 2;
   
   return 1;
 }
@@ -446,7 +447,8 @@ int textures_option_menu() {
 	 "1 Rock -> %c \n"
 	 "2 Chest -> %c \n"
 	 "3 Tree -> %c \n"
-	 "6 Adventurer -> %c \n",
+	 "6 Adventurer -> %c \n"
+	 "\n7 \t<- Back \n\n",
 	 texture_0, texture_1, texture_2, texture_3, texture_6);
 
   printf("Choose a texture to modify \n");
@@ -465,7 +467,7 @@ int textures_option_menu() {
     if (sub_option_id == 2) texture_2 = new_char;
     if (sub_option_id == 3) texture_3 = new_char;
     if (sub_option_id == 6) texture_6 = new_char;
-  }
+  } else if (sub_option_id == 7) return 2;
   
   return 1;
 }
@@ -478,7 +480,8 @@ int toggles_option_menu() {
 	 "2 Numerical hunger = %d \n"
 	 "3 Display coordinates = %d \n"
 	 "4 Display statistics = %d \n"
-	 "5 Display inventory = %d \n",
+	 "5 Display inventory = %d \n"
+	 "\n6 \t<- Back \n\n",
 	 confirm_action, hunger_numerical,
 	 display_coordinates, display_stats,
 	 display_inventory);
@@ -499,7 +502,7 @@ int toggles_option_menu() {
     if (sub_option_id == 3) display_coordinates = new_value;
     if (sub_option_id == 4) display_stats = new_value;
     if (sub_option_id == 5) display_inventory = new_value;
-  }
+  } else if (sub_option_id == 6) return 2;
 
   return 1;
 }
@@ -509,7 +512,8 @@ int custom_values_option_menu() {
 
   printf("Custom values: \n"
 	 "1 Food eaten per action = %d \n"
-	 "2 Log lines to display = %d \n",
+	 "2 Log lines to display = %d \n"
+	 "\n3 \t<- Back \n\n",
 	 food_per_eat, log_lines_amount);
 
   printf("Choose an option to modify \n");
@@ -525,7 +529,7 @@ int custom_values_option_menu() {
 
     if (sub_option_id == 1) food_per_eat = new_value;
     if (sub_option_id == 2) log_lines_amount = new_value;
-  }
+  } else if (sub_option_id == 3) return 2;
 
   return 1;
 }
@@ -546,7 +550,8 @@ int keybinds_option_menu(){
 	 "10 Help -> %s \n"
 	 "11 Quit -> %s \n"
 	 "12 Options -> %s \n"
-	 "13 Logs -> %s \n",
+	 "13 Logs -> %s \n"
+	 "\n14 \t<- Back \n\n",
 	 mine_keybind, place_keybind,
 	 right_keybind, left_keybind,
 	 down_keybind, up_keybind,
@@ -581,49 +586,40 @@ int keybinds_option_menu(){
     if (sub_option_id == 11) strcpy(quit_keybind, new_keybind);
     if (sub_option_id == 12) strcpy(options_keybind, new_keybind);
     if (sub_option_id == 13) strcpy(logs_keybind, new_keybind);
-  }
+  } else if (sub_option_id == 14) return 2;
 
   return 1;
 }
 
 int options_menu() {
   int option_id;
+  int sub_return = 1;
   
   printf("Options: \n"
 	 "1 Graphisms \n"
 	 "2 Textures \n"
 	 "3 Toggles \n"
 	 "4 Custom values \n"
-	 "5 Keybinds \n");
+	 "5 Keybinds \n"
+	 "\n6 \t<- Close options\n\n");
   
   printf("Choose a category \n");
   scanf(" %d", &option_id);
 
   while(getchar() != '\n');
+
+  if (option_id >= 1 && option_id <= 5) {
+    system("cls");
+    if (option_id == 1) sub_return = graphics_option_menu();
+    if (option_id == 2) sub_return = textures_option_menu();
+    if (option_id == 3) sub_return = toggles_option_menu();
+    if (option_id == 4) sub_return = custom_values_option_menu();
+    if (option_id == 5) sub_return = keybinds_option_menu();
+  } else if (option_id == 6) return 1;
   
-  if (option_id == 1) {
-    graphics_option_menu();
-    return 1;
-  }
-
-  if (option_id == 2) {
-    textures_option_menu();
-    return 1;
-  }
-
-  if (option_id == 3) {
-    toggles_option_menu();
-    return 1;
-  }
-
-  if (option_id == 4) {
-    custom_values_option_menu();
-    return 1;
-  }
-  
-  if (option_id == 5) {
-    keybinds_option_menu();
-    return 1;
+  if (sub_return == 2) {
+    system("cls");
+    options_menu();
   }
 
   return 1;
@@ -642,11 +638,11 @@ void lower_string(char* string){
 int is_action_valid(char* action) {
   
   const char *valid_actions[] = {"right", "r", right_keybind, "left", "l", left_keybind,
-         "up", "u", up_keybind, "down", "d", down_keybind, "mine", "m", mine_keybind,
-				 "place", "p", place_keybind, "eat", "e", eat_keybind, "inventory", "i",
-         inventory_keybind, "statistics", "s", statistics_keybind, "help", "h",
-         help_keybind, "quit", "q", quit_keybind, "options", "o", options_keybind, 
-         "logs", logs_keybind};
+				 "up", "u", up_keybind, "down", "d", down_keybind, "mine", "m",
+				 mine_keybind, "place", "p", place_keybind, "eat", "e", eat_keybind,
+				 "inventory", "i", inventory_keybind, "statistics", "s", statistics_keybind,
+				 "help", "h", help_keybind, "quit", "q", quit_keybind, "options", "o",
+				 options_keybind, "logs", logs_keybind};
 
   int num_choices = sizeof(valid_actions) / sizeof(valid_actions[0]);
 

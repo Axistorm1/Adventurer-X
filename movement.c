@@ -685,7 +685,7 @@ int is_action_valid(char* action) {
 				 mine_keybind, "place", "p", place_keybind, "eat", "e", eat_keybind,
 				 "inventory", "i", inventory_keybind, "statistics", "s", statistics_keybind,
 				 "help", "h", help_keybind, "quit", "q", quit_keybind, "options", "o",
-				 options_keybind, "logs", logs_keybind, "credits"};
+				 options_keybind, "logs", logs_keybind, "credits", "world"};
 
   int num_choices = sizeof(valid_actions) / sizeof(valid_actions[0]);
 
@@ -932,6 +932,12 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv, char*
     printf("Last %d actions: \n", log_lines_amount);
     smaller = num_lines_stored < log_lines_amount ? num_lines_stored : log_lines_amount;
     print_n_lines(smaller, stored_lines);
+
+  } else if (strcmp(choice, "world") == 0) {
+    system("cls");
+    printf("World name: %s \n", world_name);
+    printf("World size: [%d*%d] \n", world_size_x, world_size_y);
+    
   } else if (strcmp(choice, "credits") == 0) {
     system("cls");
     printf("Credits: \n\n"

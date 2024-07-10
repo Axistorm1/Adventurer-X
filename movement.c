@@ -50,6 +50,7 @@ int display_coordinates = 1;
 int display_stats = 1;
 int display_inventory = 1;
 int log_lines_amount = 5;
+int block_to_place = 1;
 
 /* Custom keybinds slots */
 
@@ -109,14 +110,21 @@ int main(void) {
   if (load_or_create == 1) {
     char filename[128];
     char confirmation = '\0';
-    
+    int loading_world;
+
+    while (loading_world != 1) {
+
     printf("What save file would you like to load? \n");
     scanf(" %s", filename);
 
     while(getchar() != '\n');
 
-    load_world_size(&world_size_x, &world_size_y, filename);
-    
+    loading_world = load_world_size(&world_size_x, &world_size_y, filename);
+
+    if (loading_world == 0) printf("File loading failed \n");
+    if (loading_world == 4) printf("%s doesn't exist \n", filename);
+    }
+
     strcpy(world_name, filename);
 
     while (confirmation != 'Y' && confirmation != 'y' && confirmation != 'N' && confirmation != 'n') {
@@ -203,41 +211,37 @@ char display_char(int value) {
 }
 
 void print_chunk_radius(int**** world, int pos_x, int pos_y, int radius_x, int radius_y) {
-
   int start_pos_x = pos_x - radius_x / 2;
-  int start_pos_y = pos_y - radius_y /2;
-  
-  int chunk_x;
-  int chunk_y;
+  int start_pos_y = pos_y - radius_y / 2;
 
-  int relative_pos_x;
-  int relative_pos_y;
-
-  // This can't possibly be efficient for high radius values
-  for(int x = 0; x < radius_x; x++){
-    for(int y = 0; y < radius_y; y++){
-      chunk_x = (start_pos_x + x) / 8;
-      chunk_y = (start_pos_y + y) / 8;
-
-      if(chunk_x >= world_size_x || chunk_x < 0 || chunk_y >= world_size_y || chunk_y < 0){
-	printf(" ");
-	continue;
+  for (int x = 0; x < radius_x; x++) {
+    int abs_x = start_pos_x + x;
+    if (abs_x < 0 || abs_x >= world_size_x * chunk_size_x) {
+      for (int y = 0; y < radius_y; y++) {
+        printf(" ");
       }
-      
-      relative_pos_x = (start_pos_x + x) % 8;
-      relative_pos_y = (start_pos_y + y) % 8;
+      printf("\n");
+      continue;
+    }
 
-      if(relative_pos_x >= chunk_size_x || relative_pos_x < 0 || relative_pos_y >= chunk_size_y || relative_pos_y < 0){
-	printf(" ");
-	continue;
+    int chunk_x = abs_x / chunk_size_x;
+    int relative_pos_x = abs_x % chunk_size_x;
+
+    for (int y = 0; y < radius_y; y++) {
+      int abs_y = start_pos_y + y;
+      if (abs_y < 0 || abs_y >= world_size_y * chunk_size_y) {
+        printf(" ");
+        continue;
       }
+
+      int chunk_y = abs_y / chunk_size_y;
+      int relative_pos_y = abs_y % chunk_size_y;
 
       int tile_value = world[chunk_x][chunk_y][relative_pos_x][relative_pos_y];
-      char display_c  = display_char(tile_value);
+      char display_c = display_char(tile_value);
       printf("%c", display_c);
-    }  
+    }
     printf("\n");
-    
   }
 }
 
@@ -365,18 +369,11 @@ int place(int**** world, int pos_x, int pos_y, struct adventurer* adv){
   if (adv->hunger < 100) {
     
     if (get_value_at_position(world, pos_x, pos_y) == 0) {
-
-      int block_to_place = 0;
-    
-      printf("Which block do you want to place? \n");
-      scanf(" %d", &block_to_place);
-
-      while (getchar() != '\n');
     
       if (block_to_place == 1) {
 	
 	if (adv->inv_adv.rock > 0) {
-
+	  adv->inv_adv.rock -= 1;
 	  change_value_at_position(world, pos_x, pos_y, 1);
 	  return 1;
 	}
@@ -385,7 +382,7 @@ int place(int**** world, int pos_x, int pos_y, struct adventurer* adv){
       } else if (block_to_place == 3) {
 	
 	if (adv->inv_adv.wood > 0) {
-	  
+	  adv->inv_adv.wood -= 1;
 	  change_value_at_position(world, pos_x, pos_y, 3);
 	  return 1;
 	} return 0;
@@ -513,15 +510,16 @@ int custom_values_option_menu() {
   printf("Custom values: \n"
 	 "1 Food eaten per action = %d \n"
 	 "2 Log lines to display = %d \n"
-	 "\n3 \t<- Back \n\n",
-	 food_per_eat, log_lines_amount);
+	 "3 Placed block = %d \n"
+	 "\n4 \t<- Back \n\n",
+	 food_per_eat, log_lines_amount, block_to_place);
 
   printf("Choose an option to modify \n");
   scanf(" %d", &sub_option_id);
 
   while (getchar() != '\n');
 
-  if (sub_option_id >= 1 && sub_option_id <= 2) {
+  if (sub_option_id >= 1 && sub_option_id <= 3) {
     int new_value;
 
     printf("New value = ");
@@ -529,7 +527,8 @@ int custom_values_option_menu() {
 
     if (sub_option_id == 1) food_per_eat = new_value;
     if (sub_option_id == 2) log_lines_amount = new_value;
-  } else if (sub_option_id == 3) return 2;
+    if (sub_option_id == 3) block_to_place = new_value;
+  } else if (sub_option_id == 4) return 2;
 
   return 1;
 }

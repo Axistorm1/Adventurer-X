@@ -1,4 +1,4 @@
-#define INSTALLED_VERSION 1.42
+#define INSTALLED_VERSION 1.43
 char UPDATE_CONTENT[] = {"\t1.29 -> Place blocks \n\t"
 "1.30 -> Actions log \n\t"
 "1.31 -> Actions as strings \n\t"
@@ -11,7 +11,10 @@ char UPDATE_CONTENT[] = {"\t1.29 -> Place blocks \n\t"
 "1.39 -> Added world save and world load, action log isn't added to the world save yet \n\t"
 "1.40 -> Action log plays when file loaded, nice cinematic, custom keybinds might break everything \n\t"
 "1.41 -> Custom keybinds translated into action log, won't break anything \n\t"
-"1.42 -> Added 'back' in option menus + minor changes"};
+"1.42 -> Added 'back' in option menus + minor changes \n\t"
+"1.43 -> Optimized display function \n\t"
+"       Fixed bug when loading inexistent file \n\t"
+"       Fixed place in cinematic world + place_block option \n\t"};
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -84,9 +84,9 @@ int load_world_size(int* world_size_x, int* world_size_y, char* filename){
 
     FILE* file = fopen(filename_extended, "r");
     if (file == NULL) {
-        perror("Failed to open file");
+        //perror("Failed to open file");
         free(filename_extended);
-        return 0;
+        return 4;
     }
 
     if (fscanf(file, "%d", world_size_x) != 1) {

@@ -587,7 +587,7 @@ int keybinds_option_menu(){
     if (sub_option_id == 13) strcpy(logs_keybind, new_keybind);
   } else if (sub_option_id == 14) return 2;
 
-  return 1;
+  return 3;
 }
 
 int options_menu() {
@@ -619,6 +619,9 @@ int options_menu() {
   if (sub_return == 2) {
     system("cls");
     options_menu();
+  } else if (sub_return == 3) {
+    system("cls");
+    keybinds_option_menu();
   }
 
   return 1;

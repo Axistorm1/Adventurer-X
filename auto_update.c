@@ -1,4 +1,4 @@
-#define INSTALLED_VERSION 1.45
+#define INSTALLED_VERSION 1.46
 char UPDATE_CONTENT[] = {"\t1.29 -> Place blocks \n\t"
 "1.30 -> Actions log \n\t"
 "1.31 -> Actions as strings \n\t"
@@ -13,10 +13,11 @@ char UPDATE_CONTENT[] = {"\t1.29 -> Place blocks \n\t"
 "1.41 -> Custom keybinds translated into action log, won't break anything \n\t"
 "1.42 -> Added 'back' in option menus + minor changes \n\t"
 "1.43 -> Optimized display function \n\t"
-"       Fixed bug when loading inexistent file \n\t"
-"       Fixed place in cinematic world + place_block option \n\t"
+"        Fixed bug when loading inexistent file \n\t"
+"        Fixed place in cinematic world + place_block option \n\t"
 "1.44 -> Added credits \n\t"
-"1.45 -> Auto-updater changes \n\t"};
+"1.45 -> Auto-updater changes \n\t"
+"1.46 -> Keybinds menu stays open after value assignation \n\t"};
 
 #include <stdio.h>
 #include <stdlib.h>

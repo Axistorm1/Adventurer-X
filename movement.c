@@ -7,6 +7,8 @@
 #define GAME_AUTHOR "Axistorm"
 #define SAVE_FILES_EXTENSION ".save"
 #define ONLINE_MODE 1
+#define MAX_ACTIONS 10
+#define ACTION_LENGTH 32
 
 #if ONLINE_MODE == 1 
 #include "auto_update.c"
@@ -33,6 +35,20 @@ char* ask_action();
 void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv, char* default_choice);
 int play_action_log(int**** world, int* pos_x, int* pos_y, struct adventurer* adv);
 
+/* Custom actions struct*/
+typedef struct {
+  char keybind[ACTION_LENGTH];
+  char actions[MAX_ACTIONS][ACTION_LENGTH];
+  int action_count;
+} ActionMacro;
+
+/* Custom scripts slots*/
+ActionMacro script_1 = {"No keybind set", {{"No action set"}}, 0};
+ActionMacro script_2 = {"No keybind set", {{"No action set"}}, 0};
+ActionMacro script_3 = {"No keybind set", {{"No action set"}}, 0};
+ActionMacro script_4 = {"No keybind set", {{"No action set"}}, 0};
+ActionMacro script_5 = {"No keybind set", {{"No action set"}}, 0};
+
 /* World options, modifiable at start-up */ 
 int world_size_x = 16;
 int world_size_y = 16;
@@ -40,6 +56,7 @@ char world_name[32];
 
 /* Game related stuff */
 int op_log_actions = 1;
+int current_macro_iterations = 0;
 
 /* Options */
 int confirm_action = 0;
@@ -51,9 +68,10 @@ int display_stats = 1;
 int display_inventory = 1;
 int log_lines_amount = 5;
 int block_to_place = 1;
+int script_actions_execution_time = 300;
+int max_macro_iterations = 10;
 
 /* Custom keybinds slots */
-
 char mine_keybind[32] = {"No keybind set"};
 char place_keybind[32] = {"No keybind set"};
 char right_keybind[32] = {"No keybind set"};
@@ -558,15 +576,17 @@ int custom_values_option_menu() {
 	 "1 Food eaten per action = %d \n"
 	 "2 Log lines to display = %d \n"
 	 "3 Placed block = %d \n"
-	 "\n4 \t<- Back \n\n",
-	 food_per_eat, log_lines_amount, block_to_place);
+   "4 Macro actions execution time = %d \n"
+   "5 Maximal macro iterations = %d \n"
+	 "\n6 \t<- Back \n\n",
+	 food_per_eat, log_lines_amount, block_to_place, script_actions_execution_time, max_macro_iterations);
 
   printf("Choose an option to modify \n");
   scanf(" %d", &sub_option_id);
 
   while (getchar() != '\n');
 
-  if (sub_option_id >= 1 && sub_option_id <= 3) {
+  if (sub_option_id >= 1 && sub_option_id <= 5) {
     int new_value;
 
     printf("New value = ");
@@ -575,7 +595,9 @@ int custom_values_option_menu() {
     if (sub_option_id == 1) food_per_eat = new_value;
     if (sub_option_id == 2) log_lines_amount = new_value;
     if (sub_option_id == 3) block_to_place = new_value;
-  } else if (sub_option_id == 4) return 2;
+    if (sub_option_id == 4) script_actions_execution_time = new_value;
+    if (sub_option_id == 5) max_macro_iterations = new_value;
+  } else if (sub_option_id == 6) return 2;
 
   return 6;
 }
@@ -637,6 +659,206 @@ int keybinds_option_menu(){
   return 7;
 }
 
+void all_script_actions(ActionMacro* macro, char all_actions[MAX_ACTIONS][ACTION_LENGTH + 1]) {
+
+  for (int i = 0; i < MAX_ACTIONS; i++) {
+    if (i < macro->action_count) {
+      strcpy(all_actions[i], macro->actions[i]);
+    } else {
+      all_actions[i][0] = '\0';
+    }
+  }
+}
+
+void concat_all_actions(char all_actions[MAX_ACTIONS][ACTION_LENGTH + 1], char actions_string[MAX_ACTIONS * (ACTION_LENGTH + 1)]) {
+  actions_string[0] = '\0';
+
+  for (int i = 0; i < MAX_ACTIONS; i++) {
+    if (all_actions[i][0] == '\0') break;
+    strcat(actions_string, all_actions[i]);
+  }
+}
+
+void reset_script(ActionMacro* macro) {
+  macro->action_count = 0;
+
+  for (int i = 0; i < MAX_ACTIONS; i++) {
+    macro->actions[i][0] = '\0';
+  }
+}
+
+int action_macros_option_menu() {
+  int sub_option_id;
+
+  /* Will change this later, too big */
+  /* Refactor the whole function, way too fat */
+
+  char all_actions_1[MAX_ACTIONS][ACTION_LENGTH + 1];
+  all_script_actions(&script_1, all_actions_1);
+  char actions_1_string[MAX_ACTIONS * (ACTION_LENGTH + 1)];
+  concat_all_actions(all_actions_1, actions_1_string);
+
+  char all_actions_2[MAX_ACTIONS][ACTION_LENGTH + 1];
+  all_script_actions(&script_2, all_actions_2);
+  char actions_2_string[MAX_ACTIONS * (ACTION_LENGTH + 1)];
+  concat_all_actions(all_actions_2, actions_2_string);
+
+  char all_actions_3[MAX_ACTIONS][ACTION_LENGTH + 1];
+  all_script_actions(&script_3, all_actions_3);
+  char actions_3_string[MAX_ACTIONS * (ACTION_LENGTH + 1)];
+  concat_all_actions(all_actions_3, actions_3_string);
+
+  char all_actions_4[MAX_ACTIONS][ACTION_LENGTH + 1];
+  all_script_actions(&script_4, all_actions_4);
+  char actions_4_string[MAX_ACTIONS * (ACTION_LENGTH + 1)];
+  concat_all_actions(all_actions_4, actions_4_string);
+
+  char all_actions_5[MAX_ACTIONS][ACTION_LENGTH + 1];
+  all_script_actions(&script_5, all_actions_5);
+  char actions_5_string[MAX_ACTIONS * (ACTION_LENGTH + 1)];
+  concat_all_actions(all_actions_5, actions_5_string);
+
+  printf("Choose an action macro to modify \n"
+         "1 %s -> %s \n"
+         "2 %s -> %s \n"
+         "3 %s -> %s \n"
+         "4 %s -> %s \n"
+         "5 %s -> %s \n"
+         "\n6 \t<- Back \n\n",
+         script_1.keybind, actions_1_string,
+         script_2.keybind, actions_2_string,
+         script_3.keybind, actions_3_string,
+         script_4.keybind, actions_4_string,
+         script_5.keybind, actions_5_string);
+  scanf(" %d", &sub_option_id);
+
+  while (getchar() != '\n');
+
+  if (sub_option_id >= 1 && sub_option_id <=5) {
+    if (sub_option_id == 1) {
+      reset_script(&script_1);
+      printf("Enter new keybind: \n");
+      scanf(" %s", script_1.keybind);
+
+      printf("Add actions to the macro. Enter 'Done' to confirm \n");
+      char action_key[ACTION_LENGTH];
+
+      while (script_1.action_count < MAX_ACTIONS) {
+        scanf(" %s", action_key);
+
+        if (strcmp(action_key, "Done") == 0) {
+          if (script_1.action_count == 0) {
+            printf("Empty macro \n");
+            strcpy(script_1.keybind, "No keybind set");
+          }
+          break;
+        }
+        if (is_action_valid(action_key) == 1) {
+          strcpy(script_1.actions[script_1.action_count], action_key);
+          script_1.action_count++;
+        } else printf("Invalid action \n");
+      }
+    }
+    if (sub_option_id == 2) {
+      reset_script(&script_2);
+      printf("Enter new keybind: \n");
+      scanf(" %s", script_2.keybind);
+
+      printf("Add actions to the macro. Enter 'Done' to confirm \n");
+      char action_key[ACTION_LENGTH];
+
+      while (script_2.action_count < MAX_ACTIONS) {
+        scanf(" %s", action_key);
+
+        if (strcmp(action_key, "Done") == 0) {
+          if (script_2.action_count == 0) {
+            printf("Empty macro \n");
+            strcpy(script_2.keybind, "No keybind set");
+          }
+          break;
+        }
+        if (is_action_valid(action_key) == 1) {
+          strcpy(script_2.actions[script_2.action_count], action_key);
+          script_2.action_count++;
+        } else printf("Invalid action \n");
+      }
+    }  
+    if (sub_option_id == 3) {
+      reset_script(&script_3);
+      printf("Enter new keybind: \n");
+      scanf(" %s", script_3.keybind);
+
+      printf("Add actions to the macro. Enter 'Done' to confirm \n");
+      char action_key[ACTION_LENGTH];
+
+      while (script_3.action_count < MAX_ACTIONS) {
+        scanf(" %s", action_key);
+
+        if (strcmp(action_key, "Done") == 0) {
+          if (script_3.action_count == 0) {
+            printf("Empty macro \n");
+            strcpy(script_3.keybind, "No keybind set");
+          }
+          break;
+        }
+        if (is_action_valid(action_key) == 1) {
+          strcpy(script_3.actions[script_3.action_count], action_key);
+          script_3.action_count++;
+        } else printf("Invalid action \n");
+      }
+    }
+    if (sub_option_id == 4) {
+      reset_script(&script_4);
+      printf("Enter new keybind: \n");
+      scanf(" %s", script_4.keybind);
+
+      printf("Add actions to the macro. Enter 'Done' to confirm \n");
+      char action_key[ACTION_LENGTH];
+
+      while (script_4.action_count < MAX_ACTIONS) {
+        scanf(" %s", action_key);
+
+        if (strcmp(action_key, "Done") == 0) {
+          if (script_4.action_count == 0) {
+            printf("Empty macro \n");
+            strcpy(script_4.keybind, "No keybind set");
+          }
+          break;
+        }
+        if (is_action_valid(action_key) == 1) {
+          strcpy(script_4.actions[script_4.action_count], action_key);
+          script_4.action_count++;
+        } else printf("Invalid action \n");
+      }
+    }
+    if (sub_option_id == 5) {
+      reset_script(&script_5);
+      printf("Enter new keybind: \n");
+      scanf(" %s", script_5.keybind);
+
+      printf("Add actions to the macro. Enter 'Done' to confirm \n");
+      char action_key[ACTION_LENGTH];
+
+      while (script_5.action_count < MAX_ACTIONS) {
+        scanf(" %s", action_key);
+
+        if (strcmp(action_key, "Done") == 0) {
+          if (script_5.action_count == 0) {
+            printf("Empty macro \n");
+            strcpy(script_5.keybind, "No keybind set");
+          }
+          break;
+        }
+        if (is_action_valid(action_key) == 1) {
+          strcpy(script_5.actions[script_5.action_count], action_key);
+          script_5.action_count++;
+        } else printf("Invalid action \n");
+      }
+    }
+  } else if (sub_option_id == 6) return 2;
+  return 8;
+}
+
 int options_menu() {
   int option_id;
   int sub_return = 1;
@@ -647,21 +869,23 @@ int options_menu() {
 	 "3 Toggles \n"
 	 "4 Custom values \n"
 	 "5 Keybinds \n"
-	 "\n6 \t<- Close options\n\n");
+   "6 Action macros \n"
+	 "\n7 \t<- Close options\n\n");
   
   printf("Choose a category \n");
   scanf(" %d", &option_id);
 
   while(getchar() != '\n');
 
-  if (option_id >= 1 && option_id <= 5) {
+  if (option_id >= 1 && option_id <= 6) {
     system("cls");
     if (option_id == 1) sub_return = graphics_option_menu();
     if (option_id == 2) sub_return = textures_option_menu();
     if (option_id == 3) sub_return = toggles_option_menu();
     if (option_id == 4) sub_return = custom_values_option_menu();
     if (option_id == 5) sub_return = keybinds_option_menu();
-  } else if (option_id == 6) return 1;
+    if (option_id == 6) sub_return = action_macros_option_menu();
+  } else if (option_id == 7) return 1;
   
   while (sub_return != 1) {
     system("cls");
@@ -677,6 +901,8 @@ int options_menu() {
       sub_return = custom_values_option_menu();
     } else if (sub_return == 7) {
       sub_return = keybinds_option_menu();
+    } else if (sub_return == 8) {
+      sub_return = action_macros_option_menu();
     }
   }
   return 1;
@@ -699,7 +925,8 @@ int is_action_valid(char* action) {
 				 mine_keybind, "place", "p", place_keybind, "eat", "e", eat_keybind,
 				 "inventory", "i", inventory_keybind, "statistics", "s", statistics_keybind,
 				 "help", "h", help_keybind, "quit", "q", quit_keybind, "options", "o",
-				 options_keybind, "logs", logs_keybind, "credits", "world"};
+				 options_keybind, "logs", logs_keybind, "credits", "world", script_1.keybind, 
+         script_2.keybind, script_3.keybind, script_4.keybind, script_5.keybind};
 
   int num_choices = sizeof(valid_actions) / sizeof(valid_actions[0]);
 
@@ -823,12 +1050,82 @@ int translate_custom_keybinds(char* choice, int**** world, int* pos_x, int* pos_
   return 0;
 }
 
+int translate_custom_scripts(char* choice, int**** world, int* pos_x, int* pos_y, struct adventurer* adv) {
+  if (strcmp(choice, script_1.keybind) == 0) {
+      current_macro_iterations++;
+      if (current_macro_iterations >= max_macro_iterations) {
+        printf("Reached maximal amount of iteration for macro, modify in options \n");
+        current_macro_iterations = 0;
+        return 1;
+      } 
+    for (int i = 0; i < script_1.action_count; i++) {
+      action(world, pos_x, pos_y, adv, script_1.actions[i]);
+      Sleep(script_actions_execution_time);
+    }
+    return 1;
+  }
+  if (strcmp(choice, script_2.keybind) == 0) {
+      current_macro_iterations++;
+      if (current_macro_iterations >= max_macro_iterations) {
+        printf("Reached maximal amount of iteration for macro, modify in options \n");
+        current_macro_iterations = 0;
+        return 1;
+      } 
+    for (int i = 0; i < script_2.action_count; i++) {
+      action(world, pos_x, pos_y, adv, script_2.actions[i]);
+      Sleep(script_actions_execution_time);
+    }
+    return 1;
+  }
+  if (strcmp(choice, script_3.keybind) == 0) {
+      current_macro_iterations++;
+      if (current_macro_iterations >= max_macro_iterations) {
+        printf("Reached maximal amount of iteration for macro, modify in options \n");
+        current_macro_iterations = 0;
+        return 1;
+      } 
+    for (int i = 0; i < script_3.action_count; i++) {
+      action(world, pos_x, pos_y, adv, script_3.actions[i]);
+      Sleep(script_actions_execution_time);
+    }
+    return 1;
+  }
+  if (strcmp(choice, script_4.keybind) == 0) {
+      current_macro_iterations++;
+      if (current_macro_iterations >= max_macro_iterations) {
+        printf("Reached maximal amount of iteration for macro, modify in options \n");
+        current_macro_iterations = 0;
+        return 1;
+      } 
+    for (int i = 0; i < script_4.action_count; i++) {
+      action(world, pos_x, pos_y, adv, script_4.actions[i]);
+      Sleep(script_actions_execution_time);
+    }
+    return 1;
+  }
+  if (strcmp(choice, script_5.keybind) == 0) {
+      current_macro_iterations++;
+      if (current_macro_iterations >= max_macro_iterations) {
+        printf("Reached maximal amount of iteration for macro, modify in options \n");
+        current_macro_iterations = 0;
+        return 1;
+      } 
+    for (int i = 0; i < script_5.action_count; i++) {
+      action(world, pos_x, pos_y, adv, script_5.actions[i]);
+      Sleep(script_actions_execution_time);
+    }
+    return 1;
+  }
+  return 0;
+}
+
 void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv, char* default_choice) {
 
   char* choice;
   
   if (strcmp(default_choice, "nothing") == 0){
   choice = ask_action();
+  current_macro_iterations = 0;
   } else if (strcmp(default_choice, "q") == 0 || strcmp(default_choice, "quit") == 0 ||
              strcmp(default_choice, "o") == 0 || strcmp(default_choice, "options") == 0 ||
              strcmp(default_choice, "help") == 0 || strcmp(default_choice, "h") == 0 || 
@@ -839,6 +1136,7 @@ void action(int**** world, int* pos_x, int* pos_y, struct adventurer* adv, char*
   }
   
   if (translate_custom_keybinds(choice, world, pos_x, pos_y, adv) == 1) return;
+  if (translate_custom_scripts(choice, world, pos_x, pos_y, adv) == 1) return;
 
   int mined, placed, ate;
   

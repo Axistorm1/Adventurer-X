@@ -234,7 +234,7 @@ int** load_chunk_from_position(char* filename, long position) {
                 free(filename_extended);
                 // Free allocated memory for the chunk before returning
                 for (int k = 0; k <= i; k++) {
-                    free(chunk[k]);
+		  free(chunk[k]);
                 }
                 free(chunk);
                 return NULL;
@@ -249,40 +249,42 @@ int** load_chunk_from_position(char* filename, long position) {
 }
 
 
-char **getFilesWithExtension(const char *path, const char *extension, int *fileCount) {
-    struct dirent *entry;
-    DIR *dp = opendir(path);
-    char **fileNames = NULL;
-    int count = 0;
-    size_t extLength = strlen(extension);
+ char **getFilesWithExtension(const char *path, const char *extension, int *fileCount) {
+   struct dirent *entry;
+   DIR *dp = opendir(path);
+   char **fileNames = NULL;
+   int count = 0;
+   size_t extLength = strlen(extension);
 
-    if (dp == NULL) {
-        perror("opendir");
-        return NULL;
-    }
+   if (dp == NULL) {
+     perror("opendir");
+     return NULL;
+   }
 
-    while ((entry = readdir(dp))) {
-            size_t len = strlen(entry->d_name);
-            if (len > extLength && strcmp(entry->d_name + len - extLength, extension) == 0) {
-                // Allocate memory for base filename without extension
-                char *baseName = malloc((len - extLength + 1) * sizeof(char));
-                strncpy(baseName, entry->d_name, len - extLength);
-                baseName[len - extLength] = '\0';
+   while ((entry = readdir(dp))) {
+     size_t len = strlen(entry->d_name);
+     if (len > extLength && strcmp(entry->d_name + len - extLength, extension) == 0) {
+       // Allocate memory for base filename without extension
+       char *baseName = malloc((len - extLength + 1) * sizeof(char));
+       strncpy(baseName, entry->d_name, len - extLength);
+       baseName[len - extLength] = '\0';
 
-                count++;
-                fileNames = realloc(fileNames, count * sizeof(char *));
-                fileNames[count - 1] = baseName;
-            }
-    }
+       count++;
+       fileNames = realloc(fileNames, count * sizeof(char *));
+       fileNames[count - 1] = baseName;
+     }
+   }
+    
+   closedir(dp);
+   *fileCount = count;
+   return fileNames;
+ }
 
-    closedir(dp);
-    *fileCount = count;
-    return fileNames;
-}
-
-void freeFileNames(char **fileNames, int fileCount) {
-    for (int i = 0; i < fileCount; i++) {
-        free(fileNames[i]);
-    }
-    free(fileNames);
-}
+ void freeFileNames(char **fileNames, int fileCount) {
+   for (int i = 0; i < fileCount; i++) {
+     free(fileNames[i]);
+   }
+   free(fileNames);
+ }
+ 
+ void save_options(){}
